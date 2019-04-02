@@ -28,7 +28,7 @@
                 set autochdir
             " Paste mode Toggle
                 set pastetoggle=<F2>
-            " useful configs
+            " Template function
                 command Template :execute ':call Template("' . input("What filetype?: ") . '")' 
                 fun! Template(content)
                     try
@@ -39,7 +39,7 @@
                         echo "That template does not exist"
                     endtry
                 endfun
-                """"""""""
+            " CompileAndRun() 
                 map <F5> :call CompileAndRun()<CR>
                 fun! CompileAndRun()
                     let extension = expand("%:e")| " E.g. '.py' or '.java'
@@ -51,19 +51,19 @@
                     exec ':bd'| "exits the temp buffer
                     exec line| "executes the final line
                 endfun
-                """"""""""
+            " Autocursorcolumn
                 autocmd BufEnter * :call AutoSetCursorColumn()
                 fun! AutoSetCursorColumn()
                     let numberOfLines = line('$')
-                    if (numberOfLines < 20)
+                    if (numberOfLines > 20)
                         set cursorcolumn
                     else
                         set nocursorcolumn
                     endif
                 endfun
-                """""""""
-                nnoremap <F11> :call Vullscreen()<cr>
-                fun! Vullscreen()
+            " Vullscreen - just regular terminal like vim
+                nnoremap <F11> :call VullScreen()<cr>
+                fun! VullScreen()
                     if &go=~#'m'
                         set go-=m
                         set go-=T
@@ -109,7 +109,55 @@
                 let g:ale_sign_error = '●'
 				let g:ale_sign_warning = '.'
                 highlight ALEError guibg=#a45444
-
+            " Vim-airline section config
+                nnoremap <F10> :call PomodoroBreak()<cr>
+                fun! PomodoroBreak()
+                    let g:timer = timer_start(60000, 'Pomodoro', {'repeat':-1}) "12000 = 1 min 
+                    let g:value = 0
+                endfun
+                fun! Pomodoro(timer)
+                    let g:value +=1
+                    if g:value == 5
+                        call Beep()
+                        echo 'break is over'
+                    endif
+                endfun
+                fun! Beep()
+                    " Beeps 3 times
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                endfun
+                nnoremap <F9> :call PomodoroStart()<cr>
+                fun! PomodoroStart()
+                    let g:timer = timer_start(240000, 'Pomodoro', {'repeat':-1}) "12000 = 1 min 
+                    let g:value = 0
+                endfun
+                fun! Pomodoro(timer)
+                    let g:value +=1
+                    if g:value == 5
+                        call Beep()
+                        echo 'take a break'
+                    endif
+                endfun
+                fun! Beep()
+                    " Beeps 3 times
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                    sleep 500m
+                    exec ':exe "normal \<Esc>"'
+                endfun
     """""""""""""""""""""""""""""""""""""
     "        Keybindings Section        "
     """""""""""""""""""""""""""""""""""""
@@ -125,14 +173,13 @@
             "This is for vim bufferline switch buffers using these keymaps
                 :noremap <C-left> :bprev<CR>
                 :noremap <C-right> :bnext<CR>
-
+            
             "This is for vim-airline
                 set noshowmode
                   if !exists('g:airline_symbols')
                     let g:airline_symbols = {}
                   endif
-            
-            " unicode symbols
+            "unicode symbols
                 let g:airline_left_sep = '»'
                 let g:airline_left_sep = ''
                 let g:airline_right_sep = '«'
@@ -155,6 +202,7 @@
                 
             "This is for Vim NERDTree
                 map <C-n> :NERDTreeToggle<CR>
+                let NERDTreeShowHidden=1
                 let g:NERDTREEChDirMode=2
                 let g:NERDTreeIgnore=['\.rbc$', '\~$', '\.pyc$', '.class','\.sqlite$','__pycache__']
                 let g:NERDTreeDirArrows=0
