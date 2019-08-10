@@ -1,3 +1,4 @@
+" Basic Settings
 set nocompatible
 syntax on
 set encoding=utf8
@@ -5,7 +6,11 @@ filetype off
 set hlsearch
 set incsearch
 set pastetoggle=<F2>
-" Template function
+"Pathogen
+execute pathogen#infect()
+filetype plugin indent on
+" FUNCTIONS{{{
+" Template function{{{
 command Template :execute ':call Template("' . input("What filetype?: ") . '")' 
 fun! Template(content)
     try
@@ -15,8 +20,8 @@ fun! Template(content)
         redraw
         echo "That template does not exist"
     endtry
-endfun
-" CompileAndRun() 
+endfun "}}}
+" CompileAndRun() {{{
 map <F5> :call CompileAndRun()<CR>
 fun! CompileAndRun()
     let extension = expand("%:e")| " E.g. '.py' or '.java'
@@ -27,8 +32,8 @@ fun! CompileAndRun()
     let line = getline(lnum)
     exec ':bd'| "exits the temp buffer
     exec line| "executes the final line
-endfun
-" ToggleCursors
+endfun "}}}
+" ToggleCursors{{{
 nmap <F3> :call ToggleCursors()<CR>
 fun! ToggleCursors()
     if &cursorline && &cursorcolumn
@@ -38,8 +43,8 @@ fun! ToggleCursors()
         set cursorcolumn
         set cursorline
     endif
-endfun
-" Vullscreen 
+endfun "}}}
+" Vullscreen {{{
 nnoremap <F11> :call VullScreen()<cr>
 fun! VullScreen()
     if &go=~#'m'
@@ -53,8 +58,8 @@ fun! VullScreen()
         set go+=r
         set go+=l
     endif
-endfun
-" Pomodoro
+endfun "}}}
+" Pomodoro{{{
 nnoremap <F10> :call PomodoroBreak()<cr>
 nnoremap <F9> :call PomodoroStart()<cr>
 fun! PomodoroBreak()
@@ -100,20 +105,19 @@ fun! Beep() "beeps 3 times
     exec ':exe "normal \<Esc>"'
     sleep 500m
     exec ':exe "normal \<Esc>"'
-endfun
-"Pathogen
-execute pathogen#infect()
-filetype plugin indent on
-"CUSTOMIZATION SECTION
+endfun "}}}}}}
+"CUSTOMIZATION SECTION{{{
 " Set Font
 set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
 " Vintage colorscheme
 colorscheme vintage
 " Vim-airline & vintage theme
+let g:airline_powerline_fonts = 1
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#formatter = 'unique_tail'
-let g:airline_theme='vintage'
-"KEYBINDING SECTION
+let g:airline_theme='solarized'
+"}}}
+"KEYBINDING SECTION{{{
 "Navigating split windows
 nnoremap <C-J> <C-W><C-J>
 nnoremap <C-K> <C-W><C-K>
@@ -121,8 +125,9 @@ nnoremap <C-L> <C-W><C-L>
 nnoremap <C-H> <C-W><C-H>
 "Vim bufferline plugin for easily switching buffers
 :noremap <C-left> :bprev<CR>
-:noremap <C-right> :bnext<CR>
-"Initiate Vim-airline symbols 
+:noremap <C-right> :bnext<CR> 
+"}}}
+"Initiate Vim-airline symbols {{{
 set noshowmode
     if !exists('g:airline_symbols')
         let g:airline_symbols = {}
@@ -145,4 +150,4 @@ let g:airline_right_alt_sep = ''
 let g:airline_symbols.branch = ''
 let g:airline_symbols.readonly = ''
 let g:airline_symbols.linenr = '☰'
-let g:airline_symbols.maxlinenr = '' 
+let g:airline_symbols.maxlinenr = '' "}}}
