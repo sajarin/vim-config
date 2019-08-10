@@ -51,12 +51,16 @@ fun! VullScreen()
         set go-=m
         set go-=T
         set go-=r
+        set go-=R
         set go-=l
+        set go-=L
     else
         set go+=m
         set go+=T
         set go+=r
+        set go+=R
         set go+=l
+        set go+=L
     endif
 endfun "}}}
 " Pomodoro{{{
