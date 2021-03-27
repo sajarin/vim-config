@@ -58,7 +58,7 @@ inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
 nmap <F12> :w <CR>
 "}}}
 "{{{ Custom Functions, Commands, and AutoCommands
-command! bufonly silent! execute "%bd|e#|bd#"
+command! BufOnly silent! execute "%bd|e#|bd#"
 "{{{ ToggleCursors - Useful for when you forget where your cursor is
 nnoremap <F3> :call ToggleCursors()<CR>
 fun! ToggleCursors()

@@ -75,7 +75,7 @@ inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
   \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 "}}}
 "{{{ Custom Functions, Commands, and AutoCommands
-command! bufonly silent! execute "%bd|e#|bd#"
+command! BufOnly silent! execute "%bd|e#|bd#"
 "{{{ Template function
 command Template :execute ':call Template("' . input("What filetype?: ") . '")'
 fun! Template(content)
