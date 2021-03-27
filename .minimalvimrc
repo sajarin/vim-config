@@ -3,136 +3,94 @@
 " Maintainer:    Shaedil D.
 " Website Link:  https://github.com/Shaedil/vim-config
 " Description:   Minimal (No Plugins) vimrc used for TUI and GUI Vim
-" Last Modified: 5/15/20
+" Last Modified: 3/26/21
 " ===================================================================
 "{{{ Tabs, foldmethods, syntax
-    set nocompatible
-    syntax on
-    set encoding=utf8
-    filetype off
-    set hlsearch
-    set incsearch
-    set nonumber
-    set relativenumber
-    set pastetoggle=<F2>
-    set mouse=a
-    set backspace=indent,eol,start
-    set autoindent
-    set tabstop=4
-    set expandtab
-    set softtabstop=0
-    set shiftwidth=4
-    set foldmethod=marker
-    set splitbelow
-    set tags=tags
-    set cursorline
-    set path=.,**
-    set omnifunc=syntaxcomplete#Complete
-    set wildmenu
-    set wildmode=longest:full
-    set wildcharm=<C-b>
-    set wildignore=*.swip,*.bak
-    set wildignore+=*.pyc,*.class,*.sln,*.Master,*.csproj,*.csproj.user
-    set wildignore+=*.cache,*.dll,*.pdb,*.min.*
-    set wildignore+=*/.git/**/*,*/.hg/**/*,*/.svn/**/*
-    set wildignore+=tags
-    set wildignore+=*.tar.*
-    inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
-    inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
-      \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-    inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
-      \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-    nmap <F12> :w <CR>
+filetype plugin on
+syntax on
+set nocompatible
+set encoding=utf8
+set splitbelow
+set splitright
+set tags=tags
+set cursorline
+set synmaxcol=0
+" numberline
+set nonumber
+set relativenumber
+set pastetoggle=<F2>
+" for temporary mouse support
+set mouse=a
+" correct MacOS backspace key
+set backspace=indent,eol,start
+" indentation
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set softtabstop=0
+set autoindent
+" file search
+set hlsearch
+set incsearch
+" folding
+set foldmethod=marker
+set foldnestmax=10
+set foldenable
+set foldlevelstart=0
+" autocompletion
+set path=.,**
+set wildmenu
+set omnifunc=syntaxcomplete#Complete
+set completeopt+=preview
+set wildmode=longest:full
+set wildcharm=<C-b>
+set wildignore=*.swip,*.bak
+set wildignore+=*.pyc,*.class,*.sln,*.Master,*.csproj,*.csproj.user
+set wildignore+=*.cache,*.dll,*.pdb,*.min.*
+set wildignore+=*/.git/**/*,*/.hg/**/*,*/.svn/**/*
+set wildignore+=tags
+set wildignore+=*.tar.*
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
+  \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
+  \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+nmap <F12> :w <CR>
 "}}}
-" FUNCTIONS{{{
-" ToggleCursors - Useful for when you forget where your cursor is {{{
-    " Useful for when you forget where your cursor is
+"{{{ Custom Functions, Commands, and AutoCommands
+command! bufonly silent! execute "%bd|e#|bd#"
+"{{{ ToggleCursors - Useful for when you forget where your cursor is
 nnoremap <F3> :call ToggleCursors()<CR>
 fun! ToggleCursors()
     if &cursorline && &cursorcolumn
-        set nocursorcolumn
-        set nocursorline
+        set nocursorcolumn nocursorline
     else
-        set cursorcolumn
-        set cursorline
+        set cursorcolumn cursorline
     endif
-endfun "}}}
-" Vullscreen - Removes annoying menu at top{{{
+endfun
+"}}}
+"{{{ Vullscreen - Removes annoying action menu at top (GUI Vim only)
 nnoremap <F11> :call VullScreen()<cr>
 fun! VullScreen()
     if &go=~#'m'
-        set go-=m
-        set go-=T
-        set go-=r
-        set go-=R
-        set go-=l
-        set go-=L
+        set go-=mTrRlL
     else
-        set go+=m
-        set go+=T
-        set go+=r
-        set go+=R
-        set go+=l
-        set go+=L
+        set go+=mTrRlL
     endif
 endfun "}}}
-" Pomodoro - Buggy and only works with GUI Vim{{{
-nnoremap <F10> :call PomodoroBreak()<cr>
-nnoremap <F9> :call PomodoroStart()<cr>
-fun! PomodoroBreak()
-    let g:timer = timer_start(60000, 'Pomodoro', {'repeat':-1}) "12000 = 1 min 
-    let g:value = 0
-endfun
-fun! Pomodoro(timer)
-    let g:value +=1
-    if g:value == 5
-        call Beep()
-        echo 'break is over'
-    endif
-endfun
-fun! Beep() "beeps 3 times
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-endfun
-fun! PomodoroStart()
-    let g:timer = timer_start(240000, 'Pomodoro', {'repeat':-1}) "12000 = 1 min 
-    let g:value = 0
-endfun
-fun! Pomodoro(timer)
-    let g:value +=1
-    if g:value == 5
-        call Beep()
-        echo 'take a break'
-    endif
-endfun
-fun! Beep() "beeps 3 times
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-    sleep 500m
-    exec ':exe "normal \<Esc>"'
-endfun "}}}
+"{{{ Viewing Images
+" autocmd BufEnter *.png,*.jpg,*gif echohl WarningMsg | echo "Press Q to Quit the window" | exec "!feh ".expand("%") | :bw
+autocmd BufEnter *.png,*.jpg,*gif exec "!xdg-open ".expand("%") | :bw
 "}}}
-" Font, colorscheme, statusline{{{
-" Set Font
+"}}}
+"{{{ Graphical Config
+"{{{ Font + Colorscheme
 set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
-" Colorscheme
-colorscheme default
-" Statusline
-" Sets statusline visible at all times: 
+colorscheme torte
+"}}}
+"{{{ Statusline
+" Sets statusline visible at all times:
 " 0=never 1=sometimes(default) 2=always
-" Statusline
 " :h mode() to see all modes
 function! ReadOnly()
   if &readonly || !&modifiable
@@ -156,7 +114,7 @@ set statusline+=%#warningmsg#
 set statusline+=%*
 set statusline+=%9*\ %=                                  " Space
 set statusline+=%8*\ %y\                                 " FileType
-set statusline+=%7*\ %{(&fenc!=''?&fenc:&enc)}\[%{&ff}]\ 
+set statusline+=%7*\ %{(&fenc!=''?&fenc:&enc)}\[%{&ff}]\
 " Encoding & Fileformat
 set statusline+=%0*\ %3p%%\ \ %l:\ %3c\                 " Rownumber/total (%)
 hi statuslinenc ctermfg=8 ctermbg=7
@@ -173,31 +131,42 @@ hi User7 ctermfg=027 | " controls unicode color
 hi User8 ctermfg=007 | " controls filename color
 hi User9 ctermfg=007
 "}}}
+"}}}
 "{{{ Keybindings
-" Abbreviations{{{
+"{{{ Save file
+nmap <F12> :w <CR>
+"}}}
+"{{{ Abbreviations
 ca vsf vert sf
 ca W w
+ca Cd cd
 ca Wq wq
 "}}}
-"Navigating split windows{{{
+"{{{ Navigating split windows
 noremap <C-J> <C-W><C-J>
 noremap <C-K> <C-W><C-K>
 noremap <C-L> <C-W><C-L>
 noremap <C-H> <C-W><C-H>
 "}}}
-"Adjusting split windows{{{
-noremap <C-up> <C-w>+ 
-noremap <C-down> <C-w>- 
+"{{{ Adjusting split windows
+noremap <C-up> <C-w>+
+noremap <C-down> <C-w>-
 noremap <leader>] <C-w>>
 noremap <leader>[ <C-w><
 "}}}
-"Navigating Tabs{{{
-" gt is default
+"{{{ Navigating Tabs
+" NOTE: gt is default
 nnoremap gt :tabnext<CR>
 nnoremap th :tabprev<CR>
 nnoremap tn :tabnew<CR>
 nnoremap tc :tabclose<CR>
 "}}}
-"Buffer Jumping{{{
+"{{{ Buffer Jumping
 nnoremap gb :ls<Cr>:b<Space>
+"}}}
+"{{{ Replace all is aliased to S
+nnoremap S :%s//g<Left><Left>
+"}}}
+"{{{ Set Spell Options
+nnoremap <F4> :setlocal spell! spelllang=en_us<cr>
 "}}}

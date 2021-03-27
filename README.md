@@ -1,23 +1,22 @@
 # Vim-Config
-## Requirements
-For full functionality:
-1. Vim-Airline plugin
-2. DroidSansMonoNF font
-3. Pathogen plugin
-4. Vim-bufferline plugin
-## Vim Functions
-1. Template: call any template of any filetype within the 'files' folder
-2. Compile And Run: As the name says. Compiles and runs common filetypes using the 'compilers.vim' file
-3. ToggleCursors: Set cursorline and cursorcolumn using only 1 button.
-4. VullScreen: GVim but without the menu bars at the top
-5. Pomodoro: Set 20 min and 5 min timers in vim. Currently does not have any indicator of time remaining.
+
+| Versions      | Description        |
+| ------------- | ------------------ |
+| [Minimal](https://github.com/Shaedil/vim-config/blob/master/.minimalvimrc) | No nonsense, no plugin config (rename `.minimalvimrc` to `.vimrc` to use it). |
+| [Full Featured](https://github.com/Shaedil/vim-config/blob/master/.vimrc) | Minimal version but with plugins and plugin config.|
+
+
+## Features
+
+1. `:bufonly` command, just like `:tabonly` but for buffers.
+2. `ToggleCursors()` function, turns on cusorline and cursorcolumn.
+3. `VullScreen()` function, turns off annoying menu bar in GVim.
+4. `View Images` autocmd, opens png, jpg, gif files from linux terminal using `xdg-open`.
+5. `Statusline` that looks minimal but supports git integration (minimal version only).
+6. `Keybindings` that are essential for navigating buffers, tabs, and splits.
+7. `:Template` call any template of any filetype within the 'files' folder (full featured only).
+
 ### Calling the Functions
-1. Template:
-```
-:Temp
-```
-2. CompileAndRun: Press F5
-3. AutoCursorColumn: Press F3
-4. VullScreen: Press F11
-5. PomodoroStart: Press F9
-5. PomodoroBreak: Press F10
+
+1. `ToggleCursors`: Press `F3`
+2. `VullScreen`: Press `F11`
