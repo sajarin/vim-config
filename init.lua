@@ -1,10 +1,10 @@
--- ====================================================================
--- Author:        Shaedil D.
--- Maintainer:    Shaedil D.
--- Website Link:  https://github.com/Shaedil/vim-config
--- Description:   My personal .vimrc used for TUI and GUI Vim/NVim
--- Last Modified: 1/5/23
--- ====================================================================
+--┌─────────────────────────────────────────────────────────────────┐
+--│ Author:        Shaedil D.                                       │
+--│ Maintainer:    Shaedil D.                                       │
+--│ Website Link:  https://github.com/Shaedil/vim-config            │
+--│ Description:   My personal .vimrc used for TUI and GUI Vim/NVim │
+--│ Last Modified: 1/5/23                                           │
+--└─────────────────────────────────────────────────────────────────┘
 
 -- [[ Packer ]] {{{
 local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
@@ -188,7 +188,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 -- }}}
 
--- Bubbles config for lualine {{{
+-- [[ Bubbles config for lualine ]] {{{
 -- Author: lokesh-krishna
 -- MIT license
 require('lualine').setup {
@@ -221,10 +221,10 @@ require('lualine').setup {
   extensions = {},
 }
 ---}}}
--- Comment.nvim Config {{{
+-- [[ Comment.nvim Config ]] {{{
 require('Comment').setup()
 --- }}}
--- Rainbow colored indentations {{{
+-- [[ Rainbow colored indentations ]] {{{
 local function get_char_highlights()
   vim.cmd [[highlight IndentBlanklineIndent1 guifg=#E06C75 blend=nocombine]]
   vim.cmd [[highlight IndentBlanklineIndent2 guifg=#E5C07B blend=nocombine]]
@@ -238,12 +238,12 @@ local function get_char_highlights()
   }
 end
 ---}}}
--- Indent-blankline Config {{{
+-- [[ Indent-blankline Config ]] {{{
 -- See `:help indent_blankline.txt`
 require('indent_blankline').setup {
   char = '┊',
   show_trailing_blankline_indent = false,
-  filetype_exclude = {"dashboard", "packer", "NvimTree", "lsp-installer"},
+  filetype_exclude = {"dashboard", "packer", "NvimTree", "lsp-installer", "lspinfo", "checkhealth", "help", "man", ""},
   buftype_exclude = {"terminal"},
   char_highlight_list = get_char_highlights(),
   context_patterns = {
@@ -252,7 +252,7 @@ require('indent_blankline').setup {
   }
 }
 --- }}}
--- Gitsigns Config {{{
+-- [[ Gitsigns Config ]] {{{
 -- See `:help gitsigns.txt`
 require('gitsigns').setup {
   signs = {
@@ -271,7 +271,7 @@ require('gitsigns').setup {
   status_formatter = nil
 }
 --- }}}
--- Telescope Config {{{
+-- [[ Telescope Config ]] {{{
 -- See `:help telescope` and `:help telescope.setup()`
 require('telescope').setup {
   defaults = {
@@ -318,7 +318,7 @@ require('telescope').setup {
   }
 }
 --- }}}
--- Telescope fzf Config {{{
+-- [[ Telescope fzf Config ]] {{{
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
@@ -333,7 +333,7 @@ vim.keymap.set('n', '<leader>/', function()
   })
 end, { desc = '[/] Fuzzily search in current buffer]' })
 -- }}}
--- Treesitter Config {{{
+-- [[ Treesitter Config ]] {{{
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
@@ -364,7 +364,7 @@ require('nvim-treesitter.configs').setup {
         ['ic'] = '@class.inner',
       },
     },
-    move = {
+   move = {
       enable = true,
       set_jumps = true, -- whether to set jumps in the jumplist
       goto_next_start = {
@@ -448,7 +448,7 @@ vim.keymap.set('n', 'gb', ':ls<CR>:b<Space>', { desc = '[G]o to [B]uffer' })
 vim.keymap.set('n', 'C-Right', ':bnext<CR>', { desc = 'Move [RIGHT] to next buffer' })
 vim.keymap.set('n', 'C-Left', ':bprev<CR>', { desc = 'Move [LEFT] to prev buffer' })
 -- }}}
--- Move Text up or down {{{
+-- Move Text up or down  {{{
 vim.keymap.set("v", "J", ":m '>+1<CR>gv=gv", { desc = 'Move selected text down' })
 vim.keymap.set("v", "K", ":m '<-2<CR>gv=gv", { desc = 'Move selected text up' })
 
@@ -503,7 +503,7 @@ local on_attach = function(_, bufnr)
 
   -- See `:help K` for why this keymap
   nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  -- nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('<leader>k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -613,6 +613,17 @@ cmp.setup {
     { name = 'luasnip' },
   },
 }
+-- }}}
+
+-- [[ Start directory to $USERPROFILE ]] {{{
+-- Change default working directory when neovim starts
+local os = require("os")
+local path_to_home = os.getenv("USERPROFILE")
+local vim_enter_group = vim.api.nvim_create_augroup("vim_enter_group", {clear = true})
+vim.api.nvim_create_autocmd(
+  {"VimEnter"},
+  { pattern = "*", command = "cd " .. path_to_home, group = vim_enter_group }
+)
 -- }}}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
