@@ -15,38 +15,37 @@ end
 --- }}}
 -- [[ Plugins ]] {{{
 require('packer').startup(function(use)
-  use {'wbthomason/packer.nvim', event = 'VimEnter'}
+  use {'wbthomason/packer.nvim'}
   -- lsp + autocompletion
   use {'neovim/nvim-lspconfig', requires = {'williamboman/mason.nvim', 'williamboman/mason-lspconfig.nvim', 'j-hui/fidget.nvim', 'folke/neodev.nvim' }}
-  use {'hrsh7th/nvim-cmp', requires = { 'hrsh7th/cmp-nvim-lsp', {'L3MON4D3/LuaSnip', wants = "cmp_luasnip", event = "InsertCharPre"}, 'saadparwaiz1/cmp_luasnip' }, event = "InsertEnter", wants = "LuaSnip"}
+  use {'hrsh7th/nvim-cmp', requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' }}
   -- git plugins
   use {'tpope/vim-fugitive', cmd = 'Git'}
   use {'tpope/vim-rhubarb', after = 'vim-fugitive'}
   -- vim functionality
-  use {'numToStr/Comment.nvim', opt = true}
+  use {'numToStr/Comment.nvim'}
   use {'tpope/vim-sleuth'}
-  use {'vimwiki/vimwiki', ft = 'vimwiki', opt = true}
-  use {'dstein64/vim-startuptime', cmd = "StartupTime"}
+  use {'vimwiki/vimwiki'}
+  use {'dstein64/vim-startuptime'}
   use {'lewis6991/impatient.nvim'}
   use {'bronson/vim-visual-star-search', keys = {'*','#', '<leader>*'}}
   use {'nathom/filetype.nvim'}
   use {'ThePrimeagen/harpoon'}
   -- gui enhancements
-  use {'goolord/alpha-nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }, event = 'VimEnter'}
-  use {'mbbill/undotree', cmd = "UndoTreeToggle", keys = '<leader>u'}
+  use {'goolord/alpha-nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
+  use {'mbbill/undotree'}
   use {'rebelot/kanagawa.nvim'}
-  use {'lukas-reineke/indent-blankline.nvim', after = "kanagawa.nvim"}
-  use {'norcalli/nvim-colorizer.lua', cmd = "ColorizerToggle"}
-  use {'nvim-lualine/lualine.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }, after = "kanagawa.nvim"}
-  use {'lewis6991/gitsigns.nvim', after = "kanagawa.nvim"}
+  use {'lukas-reineke/indent-blankline.nvim'}
+  use {'norcalli/nvim-colorizer.lua', cmd = 'ColorizerToggle'}
+  use {'nvim-lualine/lualine.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
+  use {'lewis6991/gitsigns.nvim'}
   -- treesitter
-  use {'nvim-treesitter/nvim-treesitter', run = function() pcall(require('nvim-treesitter.install').update { with_sync = true }) end, after = "kanagawa.nvim" }
-  use {'nvim-treesitter/nvim-treesitter-textobjects', after = 'nvim-treesitter'}
+  use {'nvim-treesitter/nvim-treesitter', run = function() pcall(require('nvim-treesitter.install').update { with_sync = true }) end}
+  use {'nvim-treesitter/nvim-treesitter-textobjects', after = 'telescope.nvim'}
   -- telescope + extensions
-  use {'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' }, cmd = "Telescope"}
-  use {'nvim-telescope/telescope-fzf-native.nvim', after = 'telescope.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'}
-  use {'nvim-telescope/telescope-project.nvim', after = 'telescope.nvim', opt = true}
-  use {'ElPiloto/telescope-vimwiki.nvim', after = 'telescope.nvim', opt = true}
+  use {'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' }}
+  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'}
+  use {'nvim-telescope/telescope-project.nvim'}
   local has_plugins, plugins = pcall(require, 'custom.plugins')
   if has_plugins then plugins(use) end
   if is_bootstrap then require('packer').sync() end
@@ -125,7 +124,7 @@ vim.g.maplocalleader = ' '
 require('lualine').setup {
   options = {
     theme = 'auto',
-    component_separators = '|',
+    component_separators = '│',
     section_separators = { left = '', right = '' },
   },
   sections = {
@@ -156,14 +155,29 @@ require('lualine').setup {
 require('alpha').setup(require('alpha.themes.dashboard').config)
 local dashboard = require('alpha.themes.dashboard')
 dashboard.section.header.val = {
-  [[                                                     ]],
-  [[  ███╗   ██╗███████╗ ██████╗ ██╗   ██╗██╗███╗   ███╗ ]],
-  [[  ████╗  ██║██╔════╝██╔═══██╗██║   ██║██║████╗ ████║ ]],
-  [[  ██╔██╗ ██║█████╗  ██║   ██║██║   ██║██║██╔████╔██║ ]],
-  [[  ██║╚██╗██║██╔══╝  ██║   ██║╚██╗ ██╔╝██║██║╚██╔╝██║ ]],
-  [[  ██║ ╚████║███████╗╚██████╔╝ ╚████╔╝ ██║██║ ╚═╝ ██║ ]],
-  [[  ╚═╝  ╚═══╝╚══════╝ ╚═════╝   ╚═══╝  ╚═╝╚═╝     ╚═╝ ]],
-  [[                                                     ]],
+  [[                                                   ]],
+  [[                                              ___  ]],
+  [[                                           ,o88888 ]],
+  [[       Neovim                           ,o8888888' ]],
+  [[                  ,:o:o:oooo.        ,8O88Pd8888"  ]],
+  [[              ,.::.::o:ooooOoOoO. ,oO8O8Pd888'"    ]],
+  [[            ,.:.::o:ooOoOoOO8O8OOo.8OOPd8O8O"      ]],
+  [[           , ..:.::o:ooOoOOOO8OOOOo.FdO8O8"        ]],
+  [[          , ..:.::o:ooOoOO8O888O8O,COCOO"          ]],
+  [[         , . ..:.::o:ooOoOOOO8OOOOCOCO"            ]],
+  [[          . ..:.::o:ooOoOoOO8O8OCCCC"o             ]],
+  [[             . ..:.::o:ooooOoCoCCC"o:o             ]],
+  [[             . ..:.::o:o:,cooooCo"oo:o:            ]],
+  [[          `   . . ..:.:cocoooo"'o:o:::'            ]],
+  [[          .`   . ..::ccccoc"'o:o:o:::'             ]],
+  [[         :.:.    ,c:cccc"':.:.:.:.:.'              ]],
+  [[       ..:.:"'`::::c:"'..:.:.:.:.:.'               ]],
+  [[     ...:.'.:.::::"'    . . . . .'                 ]],
+  [[    .. . ....:."' `   .  . . ''                    ]],
+  [[  . . . ...."'                    Saturn           ]],
+  [[  .. . ."'                                         ]],
+  [[ .                                                 ]],
+  [[                                                   ]],
 }
 dashboard.section.buttons.val = {
   dashboard.button("SPC f", "  Find file", ":Telescope find_files <CR>"),
@@ -316,7 +330,7 @@ require('telescope').setup {
 -- [[ Telescope fzf Config ]] {{{
 -- Enable Telescope extensions
 pcall(require('telescope').load_extension, 'fzf')
-pcall(require('telescope').load_extension, 'vimwiki')
+pcall(require('telescope').load_extension, 'harpoon')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -421,8 +435,29 @@ require('mason').setup()
 -- [[ Telescope project Config ]] {{{
 require'telescope'.load_extension('project')
 -- }}}
+-- [[ Comment.nvim Config ]] {{{
+require('Comment').setup()
+-- }}}
 -- [[ impatient.nvim Config ]] {{{
 require'impatient'
+-- }}}
+-- [[ Harpoon Config ]] {{{
+require('harpoon').setup({
+  global_settings = {
+    -- sets the marks upon calling `toggle` on the ui, instead of require `:w`.
+    save_on_toggle = false,
+    -- saves the harpoon file upon every change. disabling is unrecommended.
+    save_on_change = true,
+    -- sets harpoon to run the command immediately as it's passed to the terminal when calling `sendCommand`.
+    enter_on_sendcmd = false,
+    -- closes any tmux windows harpoon that harpoon creates when you close Neovim.
+    tmux_autoclose_windows = false,
+    -- filetypes that you want to prevent from adding to the harpoon list menu.
+    excluded_filetypes = { "harpoon" },
+    -- set marks specific to each git branch inside git repository
+    mark_branch = false,
+  }
+})
 -- }}}
 -- }}}
 -- [[ Keymappings ]] {{{
@@ -440,9 +475,6 @@ vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { de
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sp', require('telescope').extensions.project.project, { desc = '[S]earch [P]rojects' })
-vim.keymap.set('n', '<leader>vw', require('telescope').extensions.vw.vw, { desc = 'Search primary [V]im [W]iki' })
-vim.keymap.set('n', '<leader>vg', require('telescope').extensions.vw.live_grep, { desc = '[V]im wiki [G]rep search' })
-vim.keymap.set('n', '<leader>vw2', '<cmd>Telescope vw index=1<CR>', { desc = 'Search [V]im [W]iki #[2]' })
 -- Split window nav
 vim.keymap.set('n', '<C-H>', '<C-W><C-H>', { desc = 'Move cursor to window left of current' })
 vim.keymap.set('n', '<C-J>', '<C-W><C-J>', { desc = 'Move cursor to window below current' })
