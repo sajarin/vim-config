@@ -26,22 +26,20 @@ require('packer').startup(function(use)
   use {'numToStr/Comment.nvim'}
   use {'tpope/vim-sleuth'}
   use {'vimwiki/vimwiki'}
-  use {'dstein64/vim-startuptime'}
   use {'lewis6991/impatient.nvim'}
   use {'bronson/vim-visual-star-search', keys = {'*','#', '<leader>*'}}
-  use {'nathom/filetype.nvim'}
   use {'ThePrimeagen/harpoon'}
   -- gui enhancements
   use {'goolord/alpha-nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
   use {'mbbill/undotree'}
   use {'rebelot/kanagawa.nvim'}
   use {'lukas-reineke/indent-blankline.nvim'}
-  use {'norcalli/nvim-colorizer.lua', cmd = 'ColorizerToggle'}
   use {'nvim-lualine/lualine.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
   use {'lewis6991/gitsigns.nvim'}
+  use {'stevearc/oil.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
   -- treesitter
   use {'nvim-treesitter/nvim-treesitter', run = function() pcall(require('nvim-treesitter.install').update { with_sync = true }) end}
-  use {'nvim-treesitter/nvim-treesitter-textobjects', after = 'telescope.nvim'}
+  use {'nvim-treesitter/nvim-treesitter-textobjects'}
   -- telescope + extensions
   use {'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' }}
   use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'}
@@ -407,11 +405,7 @@ require('nvim-treesitter.configs').setup {
 }
 --}}}
 -- [[ Colorscheme Kanagawa Config ]] {{{
-require('kanagawa').setup({
-  globalStatus = true,       -- adjust window separators highlight for laststatus=3
-})
-vim.opt.fillchars:append({ horiz = '━', horizup = '┻', horizdown = '┳', vert = '┃', vertleft = '┨', vertright = '┣', verthoriz = '╋' })
--- setup must be called before loading
+require('kanagawa').setup({ globalStatus = true, })
 vim.cmd("colorscheme kanagawa")
 -- }}}
 -- [[ UndoTree Config ]] {{{
@@ -456,6 +450,26 @@ require('harpoon').setup({
     excluded_filetypes = { "harpoon" },
     -- set marks specific to each git branch inside git repository
     mark_branch = false,
+  }
+})
+-- }}}
+-- [[ oil.nvim Config ]] {{{
+require('oil').setup({
+  columns = {
+    "type", "icon", "size", "mtime",
+  },
+  win_options = {
+    wrap = false,
+    signcolumn = "yes",
+    cursorcolumn = false,
+    foldcolumn = "0",
+    spell = false,
+    list = true,
+    conceallevel = 3,
+    concealcursor = "n",
+  },
+  view_options = {
+    show_hidden = true,
   }
 })
 -- }}}
@@ -513,6 +527,8 @@ vim.keymap.set('n', 'gdl', '<cmd>diffget //3<CR>', { desc = 'Accept change from 
 vim.keymap.set('n', 'S', ':%s//g<Left><Left>', { desc = '[S]ubstitute and replace in buffer' })
 -- undotree mappings 
 vim.keymap.set('n', '<leader>u', ':UndotreeToggle<cr>', { desc = "Toggle undotree" })
+-- oil.nvim mapping for navigating parent directory of a file like vim-vinegar
+vim.keymap.set("n", "-", require("oil").open, { desc = "Open parent directory" })
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
