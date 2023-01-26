@@ -36,7 +36,6 @@ require('packer').startup(function(use)
   use {'lukas-reineke/indent-blankline.nvim'}
   use {'nvim-lualine/lualine.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
   use {'lewis6991/gitsigns.nvim'}
-  use {'stevearc/oil.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
   -- treesitter
   use {'nvim-treesitter/nvim-treesitter', run = function() pcall(require('nvim-treesitter.install').update { with_sync = true }) end}
   use {'nvim-treesitter/nvim-treesitter-textobjects'}
@@ -453,26 +452,6 @@ require('harpoon').setup({
   }
 })
 -- }}}
--- [[ oil.nvim Config ]] {{{
-require('oil').setup({
-  columns = {
-    "type", "icon", "size", "mtime",
-  },
-  win_options = {
-    wrap = false,
-    signcolumn = "yes",
-    cursorcolumn = false,
-    foldcolumn = "0",
-    spell = false,
-    list = true,
-    conceallevel = 3,
-    concealcursor = "n",
-  },
-  view_options = {
-    show_hidden = true,
-  }
-})
--- }}}
 -- }}}
 -- [[ Keymappings ]] {{{
 -- See `:help vim.keymap.set()`
@@ -527,8 +506,6 @@ vim.keymap.set('n', 'gdl', '<cmd>diffget //3<CR>', { desc = 'Accept change from 
 vim.keymap.set('n', 'S', ':%s//g<Left><Left>', { desc = '[S]ubstitute and replace in buffer' })
 -- undotree mappings 
 vim.keymap.set('n', '<leader>u', ':UndotreeToggle<cr>', { desc = "Toggle undotree" })
--- oil.nvim mapping for navigating parent directory of a file like vim-vinegar
-vim.keymap.set("n", "-", require("oil").open, { desc = "Open parent directory" })
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev)
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next)
