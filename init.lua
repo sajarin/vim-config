@@ -21,28 +21,38 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 --- }}}
 -- [[ Plugins ]] {{{
-require("lazy").setup({
-  'folke/neodev.nvim',
-  {'neovim/nvim-lspconfig', dependencies = { 'williamboman/mason.nvim', 'williamboman/mason-lspconfig.nvim', 'j-hui/fidget.nvim', 'folke/neodev.nvim' }},
-  {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' }},
-  {'tpope/vim-fugitive', cmd = 'Git'},
-  {'tpope/vim-rhubarb', dependencies = { 'tpope/vim-fugitive' }},
-  {'numToStr/Comment.nvim'},
-  {'tpope/vim-sleuth'},
-  {'vimwiki/vimwiki', keys = "<leader>ww"},
+require('lazy').setup({
+  'tpope/vim-sleuth',
+  {'folke/lazy.nvim', version = '*'},
+  {'neovim/nvim-lspconfig',
+    event = "BufReadPre",
+    dependencies = {
+      {'williamboman/mason.nvim', cmd = { 'Mason', 'MasonInstall', 'MasonInstallAll', 'MasonUninstall', 'MasonUninstallAll', 'MasonLog' }},
+      'williamboman/mason-lspconfig.nvim',
+      {'j-hui/fidget.nvim', event = 'BufReadPre'},
+      {'folke/neodev.nvim', opts = { experimental = { pathStrict = true } }},
+    }
+  },
+  {'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
+    dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' }
+  },
+  {'tpope/vim-rhubarb', dependencies = { {'tpope/vim-fugitive', cmd = 'Git'} }},
+  {'numToStr/Comment.nvim', keys = {'gc', 'gb', 'gcc', 'gbc', 'gco', 'gc0', 'gcA'}},
+  {'vimwiki/vimwiki', keys = '<leader>ww'},
   {'lewis6991/impatient.nvim'},
   {'bronson/vim-visual-star-search', keys = { '*', '#', '<leader>*' }},
   {'ThePrimeagen/harpoon'},
-  {'tpope/vim-speeddating', },
-  {'goolord/alpha-nvim', dependencies = { 'nvim-tree/nvim-web-devicons' }},
-  {'mbbill/undotree', keys = "<leader>u"},
-  {'rebelot/kanagawa.nvim'},
-  {'lukas-reineke/indent-blankline.nvim'},
-  {'nvim-lualine/lualine.nvim', dependencies = { 'nvim-tree/nvim-web-devicons' }},
-  {'lewis6991/gitsigns.nvim', dependencies = { 'nvim-lua/plenary.nvim' } },
-  {'nvim-treesitter/nvim-treesitter', build = ':pcall(require("nvim-treesitter.install").update { with_sync = true })'},
+  {'tpope/vim-speeddating', keys = { 'C-A', 'C-X' }},
+  {'goolord/alpha-nvim', event = 'VimEnter', dependencies = { 'nvim-tree/nvim-web-devicons' }},
+  {'mbbill/undotree', },
+  {'rebelot/kanagawa.nvim', lazy = true},
+  {'lukas-reineke/indent-blankline.nvim', event = 'BufReadPost'},
+  {'nvim-lualine/lualine.nvim', event = 'VeryLazy', dependencies = { 'nvim-tree/nvim-web-devicons' }},
+  {'lewis6991/gitsigns.nvim', event = 'BufReadPre', dependencies = { 'nvim-lua/plenary.nvim', lazy = true } },
+  {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = 'BufReadPost', cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSEnable', 'TSDisable', 'TSModuleInfo' }},
   {'nvim-treesitter/nvim-treesitter-textobjects'},
-  {'nvim-telescope/telescope.nvim', dependencies = { 'nvim-lua/plenary.nvim' }, branch = '0.1.x'},
+  {'nvim-telescope/telescope.nvim', cmd = 'Telescope', dependencies = { 'nvim-lua/plenary.nvim' }, branch = '0.1.x'},
   {'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'},
   {'nvim-telescope/telescope-project.nvim'},
 })
@@ -304,6 +314,15 @@ require('telescope').setup {
   }
 }
 --- }}}
+-- [[ Fidget.nvim Config ]] {{{
+require('fidget').setup({
+  text = {
+    spinner = "bouncing_ball",
+    commenced = "Started",
+    completed = "Completed",
+  },
+})
+--}}}
 -- [[ Telescope fzf Config ]] {{{
 -- Enable Telescope extensions
 pcall(require('telescope').load_extension, 'fzf')
@@ -383,6 +402,24 @@ require('nvim-treesitter.configs').setup {
   },
 }
 --}}}
+-- [[ Harpoon Config ]] {{{
+require('harpoon').setup({
+  global_settings = {
+    -- sets the marks upon calling `toggle` on the ui, instead of require `:w`.
+    save_on_toggle = false,
+    -- saves the harpoon file upon every change. disabling is unrecommended.
+    save_on_change = true,
+    -- sets harpoon to run the command immediately as it's passed to the terminal when calling `sendCommand`.
+    enter_on_sendcmd = false,
+    -- closes any tmux windows harpoon that harpoon creates when you close Neovim.
+    tmux_autoclose_windows = false,
+    -- filetypes that you want to prevent from adding to the harpoon list menu.
+    excluded_filetypes = { "harpoon" },
+    -- set marks specific to each git branch inside git repository
+    mark_branch = false,
+  }
+})
+-- }}}
 -- [[ Colorscheme Kanagawa Config ]] {{{
 require('kanagawa').setup({ globalStatus = true })
 vim.cmd("colorscheme kanagawa")
@@ -414,24 +451,6 @@ require('Comment').setup()
 -- }}}
 -- [[ impatient.nvim Config ]] {{{
 require'impatient'
--- }}}
--- [[ Harpoon Config ]] {{{
-require('harpoon').setup({
-  global_settings = {
-    -- sets the marks upon calling `toggle` on the ui, instead of require `:w`.
-    save_on_toggle = false,
-    -- saves the harpoon file upon every change. disabling is unrecommended.
-    save_on_change = true,
-    -- sets harpoon to run the command immediately as it's passed to the terminal when calling `sendCommand`.
-    enter_on_sendcmd = false,
-    -- closes any tmux windows harpoon that harpoon creates when you close Neovim.
-    tmux_autoclose_windows = false,
-    -- filetypes that you want to prevent from adding to the harpoon list menu.
-    excluded_filetypes = { "harpoon" },
-    -- set marks specific to each git branch inside git repository
-    mark_branch = false,
-  }
-})
 -- }}}
 -- }}}
 -- [[ Keymappings ]] {{{
