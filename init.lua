@@ -4,75 +4,56 @@
 --│ Description:   Edited version of nvim-lua/kickstart.nvim         │
 --│ Last Modified: 1/22/23                                           │
 --└──────────────────────────────────────────────────────────────────┘
--- [[ Packer Bootstrap ]] {{{
-local install_path = vim.fn.stdpath 'data' .. '/site/pack/packer/start/packer.nvim'
-local is_bootstrap = false
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-  is_bootstrap = true
-  vim.fn.system { 'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path }
-  vim.cmd [[packadd packer.nvim]]
+-- [[ lazy.nvim Bootstrap ]] {{{
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
 end
+vim.opt.rtp:prepend(lazypath)
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
 --- }}}
 -- [[ Plugins ]] {{{
-require('packer').startup(function(use)
-  use {'wbthomason/packer.nvim'}
-  -- lsp + autocompletion
-  use {'neovim/nvim-lspconfig', requires = {'williamboman/mason.nvim', 'williamboman/mason-lspconfig.nvim', 'j-hui/fidget.nvim', 'folke/neodev.nvim' }}
-  use {'hrsh7th/nvim-cmp', requires = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' }}
-  -- git plugins
-  use {'tpope/vim-fugitive', cmd = 'Git'}
-  use {'tpope/vim-rhubarb', after = 'vim-fugitive'}
-  -- vim functionality
-  use {'numToStr/Comment.nvim'}
-  use {'tpope/vim-sleuth'}
-  use {'vimwiki/vimwiki'}
-  use {'lewis6991/impatient.nvim'}
-  use {'bronson/vim-visual-star-search', keys = {'*','#', '<leader>*'}}
-  use {'ThePrimeagen/harpoon'}
-  -- gui enhancements
-  use {'goolord/alpha-nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
-  use {'mbbill/undotree'}
-  use {'rebelot/kanagawa.nvim'}
-  use {'lukas-reineke/indent-blankline.nvim'}
-  use {'nvim-lualine/lualine.nvim', requires = {'nvim-tree/nvim-web-devicons', opt=true }}
-  use {'lewis6991/gitsigns.nvim'}
-  -- treesitter
-  use {'nvim-treesitter/nvim-treesitter', run = function() pcall(require('nvim-treesitter.install').update { with_sync = true }) end}
-  use {'nvim-treesitter/nvim-treesitter-textobjects'}
-  -- telescope + extensions
-  use {'nvim-telescope/telescope.nvim', branch = '0.1.x', requires = { 'nvim-lua/plenary.nvim' }}
-  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'}
-  use {'nvim-telescope/telescope-project.nvim'}
-  local has_plugins, plugins = pcall(require, 'custom.plugins')
-  if has_plugins then plugins(use) end
-  if is_bootstrap then require('packer').sync() end
-end)
--- }}}
--- [[ Bootstrap message ]] {{{
-if is_bootstrap then
-  print '=================================='
-  print '    Plugins are being installed'
-  print '    Wait until Packer completes,'
-  print '       then restart nvim'
-  print '=================================='
-  return
-end
---}}}
--- [[ Auto compile init.lua on save ]] {{{
--- Automatically source and re-compile packer whenever you save this init.lua
-local packer_group = vim.api.nvim_create_augroup('Packer', { clear = true })
-vim.api.nvim_create_autocmd('BufWritePost', {
-  command = 'source <afile> | silent! LspStop | silent! LspStart | PackerCompile',
-  group = packer_group,
-  pattern = vim.fn.expand '$MYVIMRC',
+require("lazy").setup({
+  'folke/neodev.nvim',
+  {'neovim/nvim-lspconfig', dependencies = { 'williamboman/mason.nvim', 'williamboman/mason-lspconfig.nvim', 'j-hui/fidget.nvim', 'folke/neodev.nvim' }},
+  {'hrsh7th/nvim-cmp', dependencies = { 'hrsh7th/cmp-nvim-lsp', 'L3MON4D3/LuaSnip', 'saadparwaiz1/cmp_luasnip' }},
+  {'tpope/vim-fugitive', cmd = 'Git'},
+  {'tpope/vim-rhubarb', dependencies = { 'tpope/vim-fugitive' }},
+  {'numToStr/Comment.nvim'},
+  {'tpope/vim-sleuth'},
+  {'vimwiki/vimwiki', keys = "<leader>ww"},
+  {'lewis6991/impatient.nvim'},
+  {'bronson/vim-visual-star-search', keys = { '*', '#', '<leader>*' }},
+  {'ThePrimeagen/harpoon'},
+  {'tpope/vim-speeddating', },
+  {'goolord/alpha-nvim', dependencies = { 'nvim-tree/nvim-web-devicons' }},
+  {'mbbill/undotree', keys = "<leader>u"},
+  {'rebelot/kanagawa.nvim'},
+  {'lukas-reineke/indent-blankline.nvim'},
+  {'nvim-lualine/lualine.nvim', dependencies = { 'nvim-tree/nvim-web-devicons' }},
+  {'lewis6991/gitsigns.nvim', dependencies = { 'nvim-lua/plenary.nvim' } },
+  {'nvim-treesitter/nvim-treesitter', build = ':pcall(require("nvim-treesitter.install").update { with_sync = true })'},
+  {'nvim-treesitter/nvim-treesitter-textobjects'},
+  {'nvim-telescope/telescope.nvim', dependencies = { 'nvim-lua/plenary.nvim' }, branch = '0.1.x'},
+  {'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'},
+  {'nvim-telescope/telescope-project.nvim'},
 })
+-- }}}
+-- [[ Auto compile init.lua on save ]] {{{
+vim.api.nvim_create_autocmd('BufWritePost', { command = 'source <afile> | silent! LspStop | silent! LspStart', pattern = vim.fn.expand '$MYVIMRC' })
 --}}}
 -- [[ Vim Settings ]] {{{
 -- See `:help vim.o`
 vim.opt.showcmd = true
 vim.opt.showmode = false
-vim.opt.splitbelow = true
-vim.opt.splitright = true
 vim.opt.visualbell = true
 vim.opt.autochdir = true
 vim.opt.shortmess:append('c')
@@ -89,9 +70,10 @@ vim.opt.smartcase = true
 vim.opt.number = true
 vim.opt.title = true
 vim.opt.laststatus = 3
+vim.opt.fillchars:append({ horiz = '━', horizup = '┻', horizdown = '┳', vert = '┃', vertleft = '┨', vertright = '┣', verthoriz = '╋' })
 vim.opt.conceallevel = 2
 vim.o.t_Co = 256
-vim.wo.signcolumn = 'yes'
+vim.opt.signcolumn = 'yes'
 vim.opt.background = 'dark'
 vim.opt.guifont = "JetBrainsMono NFM:h10"
 -- optimizations
@@ -111,8 +93,6 @@ vim.opt.foldnestmax = 10
 vim.opt.foldenable = true
 vim.opt.foldlevelstart = 0
 -- Set <space> as the leader key
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
 -- }}}
 -- [[ Config ]] {{{
 -- [[ Bubbles config for lualine ]] {{{
@@ -228,7 +208,7 @@ end
 require('indent_blankline').setup {
   char = '┊',
   show_trailing_blankline_indent = false,
-  filetype_exclude = {"alpha", "dashboard", "packer", "vimwiki", "NvimTree", "lsp-installer", "lspinfo", "checkhealth", "help", "man", "mason", ""},
+  filetype_exclude = {"alpha", "dashboard", "packer", "vimwiki", "NvimTree", "lsp-installer", "lspinfo", "checkhealth", "help", "man", "mason", "lua", ""},
   buftype_exclude = {"terminal", "_.*"},
   char_highlight_list = get_char_highlights(),
   context_patterns = {
@@ -404,8 +384,9 @@ require('nvim-treesitter.configs').setup {
 }
 --}}}
 -- [[ Colorscheme Kanagawa Config ]] {{{
-require('kanagawa').setup({ globalStatus = true, })
+require('kanagawa').setup({ globalStatus = true })
 vim.cmd("colorscheme kanagawa")
+vim.cmd [[hi WinSeparator guibg=NONE guifg=#363646]]
 -- }}}
 -- [[ UndoTree Config ]] {{{
 vim.g.undotree_WindowLayout = 3
@@ -643,12 +624,12 @@ cmp.setup {
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete(),
     ['<CR>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true, },
-    ['<Tab>'] = cmp.mapping(function(fallback)
+    ['<C-n>'] = cmp.mapping(function(fallback)
       if cmp.visible() then cmp.select_next_item()
       elseif luasnip.expand_or_jumpable() then luasnip.expand_or_jump()
       else fallback() end
     end, { 'i', 's' }),
-    ['<S-Tab>'] = cmp.mapping(function(fallback)
+    ['<C-p>'] = cmp.mapping(function(fallback)
       if cmp.visible() then cmp.select_prev_item()
       elseif luasnip.jumpable(-1) then luasnip.jump(-1)
       else fallback() end
