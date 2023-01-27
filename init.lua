@@ -45,7 +45,7 @@ require('lazy').setup({
   {'ThePrimeagen/harpoon'},
   {'tpope/vim-speeddating', keys = { 'C-A', 'C-X' }},
   {'goolord/alpha-nvim', event = 'VimEnter', dependencies = { 'nvim-tree/nvim-web-devicons' }},
-  {'mbbill/undotree', },
+  {'mbbill/undotree'},
   {'rebelot/kanagawa.nvim', lazy = true},
   {'lukas-reineke/indent-blankline.nvim', event = 'BufReadPost'},
   {'nvim-lualine/lualine.nvim', event = 'VeryLazy', dependencies = { 'nvim-tree/nvim-web-devicons' }},
@@ -54,7 +54,8 @@ require('lazy').setup({
   {'nvim-treesitter/nvim-treesitter-textobjects'},
   {'nvim-telescope/telescope.nvim', cmd = 'Telescope', dependencies = { 'nvim-lua/plenary.nvim' }, branch = '0.1.x'},
   {'nvim-telescope/telescope-fzf-native.nvim', build = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build'},
-  {'nvim-telescope/telescope-project.nvim'},
+  {'nvim-telescope/telescope-project.nvim', dependencies = 'nvim-telescope/telescope.nvim'},
+  {'ahmedkhalf/project.nvim', dependencies = 'nvim-telescope/telescope.nvim'},
 })
 -- }}}
 -- [[ Auto compile init.lua on save ]] {{{
@@ -65,7 +66,6 @@ vim.api.nvim_create_autocmd('BufWritePost', { command = 'source <afile> | silent
 vim.opt.showcmd = true
 vim.opt.showmode = false
 vim.opt.visualbell = true
-vim.opt.autochdir = true
 vim.opt.shortmess:append('c')
 -- searching
 vim.opt.hlsearch = true
@@ -291,12 +291,13 @@ require('telescope').setup {
     sorting_strategy = "descending",
     layout_strategy = "horizontal",
     file_sorter = require('telescope.sorters').get_fuzzy_file,
-    file_ignore_patterns = { "node_modules" },
+    file_ignore_patterns = { "node_modules", "^.git/" },
     generic_sorter = require('telescope.sorters').get_generic_fuzzy_sorter,
     path_display = { "truncate" },
     winblend = 0,
     border = {},
-    borderchars = {'─', '│', '─', '│', '┌', '┐', '┘', '└'},
+    -- borderchars = {'─', '│', '─', '│', '┌', '┐', '┘', '└'},
+    borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
     color_devicons = true,
     set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
     file_previewer = require'telescope.previewers'.vim_buffer_cat.new,
@@ -327,6 +328,7 @@ require('fidget').setup({
 -- Enable Telescope extensions
 pcall(require('telescope').load_extension, 'fzf')
 pcall(require('telescope').load_extension, 'harpoon')
+pcall(require('telescope').load_extension, 'projects')
 
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
@@ -443,14 +445,14 @@ end
 require('neodev').setup()
 require('mason').setup()
 -- }}}
--- [[ Telescope project Config ]] {{{
-require'telescope'.load_extension('project')
--- }}}
 -- [[ Comment.nvim Config ]] {{{
 require('Comment').setup()
 -- }}}
 -- [[ impatient.nvim Config ]] {{{
 require'impatient'
+-- }}}
+-- [[ project.nvim Config ]] {{{
+require('project_nvim').setup({silent_chdir = true, show_hidden = false})
 -- }}}
 -- }}}
 -- [[ Keymappings ]] {{{
@@ -467,7 +469,7 @@ vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-vim.keymap.set('n', '<leader>sp', require('telescope').extensions.project.project, { desc = '[S]earch [P]rojects' })
+vim.keymap.set('n', '<leader>sp', require('telescope').extensions.projects.projects, { desc = '[S]earch [P]rojects' })
 -- Split window nav
 vim.keymap.set('n', '<C-H>', '<C-W><C-H>', { desc = 'Move cursor to window left of current' })
 vim.keymap.set('n', '<C-J>', '<C-W><C-J>', { desc = 'Move cursor to window below current' })
@@ -502,6 +504,14 @@ vim.keymap.set('v', "J", "<cmd>m '>+1<CR>gv=gv", { desc = 'Move selected text do
 vim.keymap.set('n', '<leader>gd', '<cmd>Gvdiff<CR>', { desc = 'Start [G]it vertical [D]iff' })
 vim.keymap.set('n', 'gdh', '<cmd>diffget //2<CR>', { desc = 'Accept change from left (HEAD) in [G]it [D]iff' })
 vim.keymap.set('n', 'gdl', '<cmd>diffget //3<CR>', { desc = 'Accept change from right (master) in [G]it [D]iff' })
+-- harpoon keybindings
+vim.keymap.set('n', '<leader>ha', require('harpoon.mark').add_file, { desc = '[H]arpoon [A]dd file' })
+vim.keymap.set('n', '<leader>hm', require('harpoon.ui').toggle_quick_menu, { desc = 'Open [H]arpoon [M]enu' })
+vim.keymap.set('n', '<leader>h1', function() require('harpoon.ui').nav_file(1) end, { desc = '[H]arpoon file [1]' })
+vim.keymap.set('n', '<leader>h2', function() require('harpoon.ui').nav_file(2) end, { desc = '[H]arpoon file [2]' })
+vim.keymap.set('n', '<leader>h3', function() require('harpoon.ui').nav_file(3) end, { desc = '[H]arpoon file [3]' })
+vim.keymap.set('n', '<leader>h4', function() require('harpoon.ui').nav_file(4) end, { desc = '[H]arpoon file [4]' })
+
 -- Replace all is aliased to S
 vim.keymap.set('n', 'S', ':%s//g<Left><Left>', { desc = '[S]ubstitute and replace in buffer' })
 -- undotree mappings 
@@ -553,31 +563,31 @@ local on_attach = function(_, bufnr)
   -- many times.
   -- In this case, we create a function that lets us more easily define mappings specific
   -- for LSP related items. It sets the mode, buffer and description for us each time.
-  local lspnmap = function(keys, func, desc)
+  local nmap = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
     end
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
-  lspnmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  lspnmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
-  lspnmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  lspnmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  lspnmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  lspnmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  lspnmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  lspnmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
+  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
-  lspnmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  lspnmap('<leader>k>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  nmap('<leader>k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
   -- Lesser used LSP functionality
-  lspnmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  lspnmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  lspnmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  lspnmap('<leader>wl', function()
+  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
+  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
+  nmap('<leader>wl', function()
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
 
@@ -657,7 +667,7 @@ cmp.setup {
   sources = { { name = 'nvim_lsp' }, { name = 'luasnip' } },
 }
 -- }}}
-vim.api.nvim_set_current_dir("~")
+-- vim.api.nvim_set_current_dir("~")
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
