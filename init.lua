@@ -2,7 +2,7 @@
 --│ Author:        Shaedil D.                                        │
 --│ Website Link:  https://github.com/Shaedil/vim-config             │
 --│ Description:   Edited version of nvim-lua/kickstart.nvim         │
---│ Last Modified: 1/22/23                                           │
+--│ Last Modified: 2/1/23                                           │
 --└──────────────────────────────────────────────────────────────────┘
 -- [[ lazy.nvim Bootstrap ]] {{{
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -42,12 +42,13 @@ require('lazy').setup({
   {'vimwiki/vimwiki', keys = '<leader>ww'},
   {'lewis6991/impatient.nvim'},
   {'bronson/vim-visual-star-search', keys = { '*', '#', '<leader>*' }},
-  {'ThePrimeagen/harpoon'},
+  {'ThePrimeagen/harpoon', lazy = true},
   {'tpope/vim-speeddating', keys = { 'C-A', 'C-X' }},
   {'goolord/alpha-nvim', event = 'VimEnter', dependencies = { 'nvim-tree/nvim-web-devicons' }},
   {'mbbill/undotree'},
+  {'nvim-zh/colorful-winsep.nvim', lazy = true},
   {'rebelot/kanagawa.nvim', lazy = true},
-  {'lukas-reineke/indent-blankline.nvim', event = 'BufReadPost'},
+  {'lukas-reineke/indent-blankline.nvim', dependencies = 'nvim-treesitter/nvim-treesitter'},
   {'nvim-lualine/lualine.nvim', event = 'VeryLazy', dependencies = { 'nvim-tree/nvim-web-devicons' }},
   {'lewis6991/gitsigns.nvim', event = 'BufReadPre', dependencies = { 'nvim-lua/plenary.nvim', lazy = true } },
   {'nvim-treesitter/nvim-treesitter', build = ':TSUpdate', event = 'BufReadPost', cmd = { 'TSInstall', 'TSBufEnable', 'TSBufDisable', 'TSEnable', 'TSDisable', 'TSModuleInfo' }},
@@ -58,9 +59,6 @@ require('lazy').setup({
   {'ahmedkhalf/project.nvim', dependencies = 'nvim-telescope/telescope.nvim'},
 })
 -- }}}
--- [[ Auto compile init.lua on save ]] {{{
-vim.api.nvim_create_autocmd('BufWritePost', { command = 'source <afile> | silent! LspStop | silent! LspStart', pattern = vim.fn.expand '$MYVIMRC' })
---}}}
 -- [[ Vim Settings ]] {{{
 -- See `:help vim.o`
 vim.opt.showcmd = true
@@ -102,7 +100,6 @@ vim.opt.foldmethod = 'marker'
 vim.opt.foldnestmax = 10
 vim.opt.foldenable = true
 vim.opt.foldlevelstart = 0
--- Set <space> as the leader key
 -- }}}
 -- [[ Config ]] {{{
 -- [[ Bubbles config for lualine ]] {{{
@@ -121,7 +118,7 @@ require('lualine').setup {
     lualine_b = { 'filename', 'branch' },
     lualine_c = { 'fileformat' },
     lualine_x = { 'diff', 'diagnostics' },
-    lualine_y = { 'filetype', 'progress' },
+    lualine_y = { 'filetype', 'encoding', 'progress' },
     lualine_z = {
       { 'location', separator = { right = '' }, left_padding = 2 },
     },
@@ -178,7 +175,7 @@ dashboard.section.header.opts.hl = "Include"
 dashboard.section.buttons.opts.hl = "Keyword"
 
 dashboard.opts.opts.noautocmd = true
-vim.cmd([[autocmd User AlphaReady echo 'ready']])
+vim.cmd([[autocmd User AlphaReady echo 'Alpha is ready']])
 -- }}}
 -- [[ Vimwiki Config ]] {{{
 local wiki_1 = {}
@@ -217,13 +214,16 @@ end
 -- See `:help indent_blankline.txt`
 require('indent_blankline').setup {
   char = '┊',
+  show_current_context = true,
+  show_current_context_start = true,
   show_trailing_blankline_indent = false,
-  filetype_exclude = {"alpha", "dashboard", "packer", "vimwiki", "NvimTree", "lsp-installer", "lspinfo", "checkhealth", "help", "man", "mason", "lua", ""},
+  space_char_blankline = " ",
+  filetype_exclude = {"alpha", "dashboard", "TelescopeResults", "TelescopePrompt", "lazy", "packer", "vimwiki", "NvimTree", "lsp-installer", "lspinfo", "checkhealth", "help", "man", "mason", "lua", ""},
   buftype_exclude = {"terminal", "_.*"},
   char_highlight_list = get_char_highlights(),
   context_patterns = {
     "class", "return", "function", "method", "^if", "^while", "jsx_element", "^for", "^object", "^table", "block", "arguments", "if_statement",
-    "else_clause", "jsx_element", "jsx_self_closing_element", "try_statement", "catch_clause", "import_statement", "operation_type"
+      "else_clause", "jsx_element", "jsx_self_closing_element", "try_statement", "catch_clause", "import_statement", "operation_type"
   }
 }
 --- }}}
@@ -291,12 +291,22 @@ require('telescope').setup {
     sorting_strategy = "descending",
     layout_strategy = "horizontal",
     file_sorter = require('telescope.sorters').get_fuzzy_file,
-    file_ignore_patterns = { "node_modules", "^.git/" },
+    file_ignore_patterns = { "node_modules" },
     generic_sorter = require('telescope.sorters').get_generic_fuzzy_sorter,
     path_display = { "truncate" },
     winblend = 0,
     border = {},
-    -- borderchars = {'─', '│', '─', '│', '┌', '┐', '┘', '└'},
+    vimgrep_arguments = {
+      'rg',
+      '--color=never',
+      '--no-heading',
+      '--with-filename',
+      '--line-number',
+      '--column',
+      '--smart-case',
+      '-u',
+      '-u',
+    },
     borderchars = { "─", "│", "─", "│", "╭", "╮", "╯", "╰" },
     color_devicons = true,
     set_env = {['COLORTERM'] = 'truecolor'}, -- default = nil,
@@ -454,6 +464,15 @@ require'impatient'
 -- [[ project.nvim Config ]] {{{
 require('project_nvim').setup({silent_chdir = true, show_hidden = false})
 -- }}}
+-- [[ colorful-winsep.nvim ]] {{{
+require('colorful-winsep').setup({
+  highlight = {
+    bg = "#1f1f28",
+    fg = "#A3D4D5",
+  },
+  no_exec_files = { "packer", "TelescopePrompt", "mason", "lazy", }
+})
+-- }}}
 -- }}}
 -- [[ Keymappings ]] {{{
 -- See `:help vim.keymap.set()`
@@ -524,6 +543,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist)
 -- }}}
 -- [[ Custom Functions, Commands & Autocommands ]] {{{
 vim.api.nvim_create_user_command('BufOnly', "%bd|e#|bd#", {})
+vim.cmd[[autocmd BufWritePost * :IndentBlanklineEnable]]
 -- [[ Highlight on yank ]] {{{
 -- See `:help vim.highlight.on_yank()`
 local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
