@@ -2,7 +2,7 @@
 --│ Author:        Shaedil D.                                        │
 --│ Website Link:  https://github.com/Shaedil/vim-config             │
 --│ Description:   Edited version of nvim-lua/kickstart.nvim         │
---│ Last Modified: 2/1/23                                           │
+--│ Last Modified: 2/3/23                                            │
 --└──────────────────────────────────────────────────────────────────┘
 -- [[ lazy.nvim Bootstrap ]] {{{
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -39,13 +39,14 @@ require('lazy').setup({
   },
   {'tpope/vim-rhubarb', dependencies = { {'tpope/vim-fugitive', cmd = 'Git'} }},
   {'numToStr/Comment.nvim', keys = {'gc', 'gb', 'gcc', 'gbc', 'gco', 'gc0', 'gcA'}},
-  {'vimwiki/vimwiki', keys = '<leader>ww'},
+  {'vimwiki/vimwiki'},
   {'lewis6991/impatient.nvim'},
   {'bronson/vim-visual-star-search', keys = { '*', '#', '<leader>*' }},
   {'ThePrimeagen/harpoon', lazy = true},
   {'tpope/vim-speeddating', keys = { 'C-A', 'C-X' }},
   {'goolord/alpha-nvim', event = 'VimEnter', dependencies = { 'nvim-tree/nvim-web-devicons' }},
   {'mbbill/undotree'},
+  {'iamcco/markdown-preview.nvim', build = 'cd app && npm install', init = function() vim.g.mkdp_filetypes = { "markdown" } end, ft = "markdown"  },
   {'nvim-zh/colorful-winsep.nvim', lazy = true},
   {'rebelot/kanagawa.nvim', lazy = true},
   {'lukas-reineke/indent-blankline.nvim', dependencies = 'nvim-treesitter/nvim-treesitter'},
