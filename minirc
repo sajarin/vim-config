@@ -1,9 +1,8 @@
 " ===================================================================
 " Author:        Shaedil D.
-" Maintainer:    Shaedil D.
 " Website Link:  https://github.com/Shaedil/vim-config
 " Description:   Minimal (No Plugins) vimrc used for TUI and GUI Vim
-" Last Modified: 3/26/21
+" Last Modified: 2/04/23
 " ===================================================================
 "{{{ Tabs, foldmethods, syntax
 filetype plugin on
@@ -52,10 +51,9 @@ set wildignore+=tags
 set wildignore+=*.tar.*
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
-  \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+            \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
-  \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
-nmap <F12> :w <CR>
+            \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 "}}}
 "{{{ Custom Functions, Commands, and AutoCommands
 command! BufOnly silent! execute "%bd|e#|bd#"
@@ -69,41 +67,40 @@ fun! ToggleCursors()
     endif
 endfun
 "}}}
-"{{{ Vullscreen - Removes annoying action menu at top (GUI Vim only)
-nnoremap <F11> :call VullScreen()<cr>
-fun! VullScreen()
-    if &go=~#'m'
-        set go-=mTrRlL
-    else
-        set go+=mTrRlL
-    endif
-endfun "}}}
 "{{{ Viewing Images
-" autocmd BufEnter *.png,*.jpg,*gif echohl WarningMsg | echo "Press Q to Quit the window" | exec "!feh ".expand("%") | :bw
-autocmd BufEnter *.png,*.jpg,*gif exec "!xdg-open ".expand("%") | :bw
+if has("unix")
+    autocmd BufEnter *.png,*.jpg,*gif exec "!xdg-open ".expand("%") | :bw
+endif
+if has("win32")
+    autocmd BufEnter *.png,*.jpg,*gif exec "!start ".expand("%") | :bw
+endif
+if has("mac")
+    autocmd BufEnter *.png,*.jpg,*gif exec "!open ".expand("%") | :bw
+endif
 "}}}
 "}}}
 "{{{ Graphical Config
 "{{{ Font + Colorscheme
 set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
-colorscheme torte
+colorscheme habamax
 "}}}
 "{{{ Statusline
 " Sets statusline visible at all times:
 " 0=never 1=sometimes(default) 2=always
 " :h mode() to see all modes
 function! ReadOnly()
-  if &readonly || !&modifiable
-    return '[RO]'
-  else
-    return ''
+    if &readonly || !&modifiable
+        return '[RO]'
+    else
+        return ''
+    endif
 endfunction
 function! GitBranch()
     return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
 endfunction
 function! StatuslineGit()
-  let l:branchname = GitBranch()
-  return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+    let l:branchname = GitBranch()
+    return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
 endfunction
 set laststatus=2
 set statusline=
@@ -133,9 +130,6 @@ hi User9 ctermfg=007
 "}}}
 "}}}
 "{{{ Keybindings
-"{{{ Save file
-nmap <F12> :w <CR>
-"}}}
 "{{{ Abbreviations
 ca vsf vert sf
 ca W w
@@ -170,3 +164,5 @@ nnoremap S :%s//g<Left><Left>
 "{{{ Set Spell Options
 nnoremap <F4> :setlocal spell! spelllang=en_us<cr>
 "}}}
+"}}}
+" vim: ts=2 sts=2 sw=2 et

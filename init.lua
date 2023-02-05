@@ -39,7 +39,7 @@ require('lazy').setup({
   },
   {'tpope/vim-rhubarb', dependencies = { {'tpope/vim-fugitive', cmd = 'Git'} }},
   {'numToStr/Comment.nvim', keys = {'gc', 'gb', 'gcc', 'gbc', 'gco', 'gc0', 'gcA'}},
-  {'vimwiki/vimwiki'},
+  {'vimwiki/vimwiki', ft = 'vimwiki'},
   {'lewis6991/impatient.nvim'},
   {'bronson/vim-visual-star-search', keys = { '*', '#', '<leader>*' }},
   {'ThePrimeagen/harpoon', lazy = true},
@@ -174,7 +174,6 @@ dashboard.section.buttons.val = {
 }
 dashboard.section.header.opts.hl = "Include"
 dashboard.section.buttons.opts.hl = "Keyword"
-
 dashboard.opts.opts.noautocmd = true
 vim.cmd([[autocmd User AlphaReady echo 'Alpha is ready']])
 -- }}}
@@ -434,7 +433,7 @@ require('harpoon').setup({
 })
 -- }}}
 -- [[ Colorscheme Kanagawa Config ]] {{{
-require('kanagawa').setup({ globalStatus = true })
+require('kanagawa').setup({ globalStatus = true, theme = "dark" })
 vim.cmd("colorscheme kanagawa")
 vim.cmd [[hi WinSeparator guibg=NONE guifg=#363646]]
 -- }}}
@@ -531,7 +530,6 @@ vim.keymap.set('n', '<leader>h1', function() require('harpoon.ui').nav_file(1) e
 vim.keymap.set('n', '<leader>h2', function() require('harpoon.ui').nav_file(2) end, { desc = '[H]arpoon file [2]' })
 vim.keymap.set('n', '<leader>h3', function() require('harpoon.ui').nav_file(3) end, { desc = '[H]arpoon file [3]' })
 vim.keymap.set('n', '<leader>h4', function() require('harpoon.ui').nav_file(4) end, { desc = '[H]arpoon file [4]' })
-
 -- Replace all is aliased to S
 vim.keymap.set('n', 'S', ':%s//g<Left><Left>', { desc = '[S]ubstitute and replace in buffer' })
 -- undotree mappings 

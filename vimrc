@@ -1,9 +1,8 @@
 " ===================================================================
 " Author:        Shaedil D.
-" Maintainer:    Shaedil D.
 " Website Link:  https://github.com/Shaedil/vim-config
 " Description:   Feature rich vimrc used for TUI and GUI Vim
-" Last Modified: 3/26/21
+" Last Modified: 2/04/23
 " ===================================================================
 "{{{ Vim-Plug
 call plug#begin('~/.vim/plugged')
@@ -70,24 +69,12 @@ set wildignore+=tags
 set wildignore+=*.tar.*
 inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
 inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
-  \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+            \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
-  \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+            \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
 "}}}
 "{{{ Custom Functions, Commands, and AutoCommands
 command! BufOnly silent! execute "%bd|e#|bd#"
-"{{{ Template function
-command Template :execute ':call Template("' . input("What filetype?: ") . '")'
-fun! Template(content)
-    try
-        silent execute ":r " . $VIMRUNTIME . '\' . a:content
-        redraw!
-    catch /.*/
-        redraw
-        echo "Template not found, are you using the abbreviated version of the filetype?"
-    endtry
-endfun
-"}}}
 "{{{ ToggleCursors - Useful for when you forget where your cursor is
 nmap <F3> :call ToggleCursors()<CR>
 fun! ToggleCursors()
@@ -98,19 +85,16 @@ fun! ToggleCursors()
     endif
 endfun
 "}}}
-"{{{ Vullscreen - Removes annoying action menu at top (GUI Vim only)
-nnoremap <F11> :call VullScreen()<cr>
-fun! VullScreen()
-    if &go=~#'m'
-        set go-=mTrl
-    else
-        set go+=mTrl
-    endif
-endfun
-"}}}
 "{{{ Viewing Images
-" autocmd BufEnter *.png,*.jpg,*gif echohl WarningMsg | echo "Press Q to Quit the window" | exec "!feh ".expand("%") | :bw
-autocmd BufEnter *.png,*.jpg,*gif exec "!xdg-open ".expand("%") | :bw
+if has("unix")
+    autocmd BufEnter *.png,*.jpg,*gif exec "!xdg-open ".expand("%") | :bw
+endif
+if has("win32")
+    autocmd BufEnter *.png,*.jpg,*gif exec "!start ".expand("%") | :bw
+endif
+if has("mac")
+    autocmd BufEnter *.png,*.jpg,*gif exec "!open ".expand("%") | :bw
+endif
 "}}}
 "}}}
 "{{{ Graphical config
@@ -222,28 +206,29 @@ nnoremap <F4> :setlocal spell! spelllang=en_us<cr>
 "}}}
 "{{{ Vim airline config
 set noshowmode
-    if !exists('g:airline_symbols')
-        let g:airline_symbols = {}
-    endif
+if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+endif
 "{{{ Unicode symbols depending on font
-   let g:airline_left_sep = '»'
-   let g:airline_left_sep = ''
-   let g:airline_right_sep = '«'
-   let g:airline_right_sep = ''
-   let g:airline_symbols.linenr = '☰'
-   let g:airline_symbols.paste = 'ρ'
-   let g:airline_symbols.paste = 'Þ'
-   let g:airline_symbols.notexists = ' '
-   let g:airline_symbols.whitespace = 'Ξ'
+let g:airline_left_sep = '»'
+let g:airline_left_sep = ''
+let g:airline_right_sep = '«'
+let g:airline_right_sep = ''
+let g:airline_symbols.linenr = '☰'
+let g:airline_symbols.paste = 'ρ'
+let g:airline_symbols.paste = 'Þ'
+let g:airline_symbols.notexists = ' '
+let g:airline_symbols.whitespace = 'Ξ'
 "}}}
-   " Powerline symbols if using powerline font{{{
-   let g:airline_left_sep = ''
-   let g:airline_left_alt_sep = ''
-   let g:airline_right_sep = ''
-   let g:airline_right_alt_sep = ''
-   let g:airline_symbols.branch = ''
-   let g:airline_symbols.readonly = ''
-   let g:airline_symbols.linenr = '☰'
-   let g:airline_symbols.maxlinenr = ''
-   "}}}
+" Powerline symbols if using powerline font{{{
+let g:airline_left_sep = ''
+let g:airline_left_alt_sep = ''
+let g:airline_right_sep = ''
+let g:airline_right_alt_sep = ''
+let g:airline_symbols.branch = ''
+let g:airline_symbols.readonly = ''
+let g:airline_symbols.linenr = '☰'
+let g:airline_symbols.maxlinenr = ''
 "}}}
+"}}}
+" vim: ts=2 sts=2 sw=2 et
