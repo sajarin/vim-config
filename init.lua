@@ -39,7 +39,7 @@ require('lazy').setup({
   },
   {'tpope/vim-rhubarb', dependencies = { {'tpope/vim-fugitive', cmd = 'Git'} }},
   {'numToStr/Comment.nvim', keys = {'gc', 'gb', 'gcc', 'gbc', 'gco', 'gc0', 'gcA'}},
-  {'vimwiki/vimwiki', ft = 'vimwiki'},
+  {'vimwiki/vimwiki'},
   {'lewis6991/impatient.nvim'},
   {'bronson/vim-visual-star-search', keys = { '*', '#', '<leader>*' }},
   {'ThePrimeagen/harpoon', lazy = true},
@@ -108,7 +108,7 @@ vim.opt.foldlevelstart = 0
 -- MIT license
 require('lualine').setup {
   options = {
-    theme = 'auto',
+    -- theme = 'auto',
     component_separators = '│',
     section_separators = { left = '', right = '' },
   },
