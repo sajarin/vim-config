@@ -82,7 +82,7 @@ endif
 "{{{ Graphical Config
 "{{{ Font + Colorscheme
 set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
-colorscheme habamax
+colorscheme desert
 "}}}
 "{{{ Statusline
 " Sets statusline visible at all times:
