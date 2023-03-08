@@ -15,8 +15,8 @@ set tags=tags
 set cursorline
 set synmaxcol=0
 " numberline
-set nonumber
-set relativenumber
+set number
+set noshowmode
 set pastetoggle=<F2>
 " for temporary mouse support
 set mouse=a
@@ -81,52 +81,158 @@ endif
 "}}}
 "{{{ Graphical Config
 "{{{ Font + Colorscheme
-set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
+"set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
 colorscheme desert
 "}}}
-"{{{ Statusline
-" Sets statusline visible at all times:
-" 0=never 1=sometimes(default) 2=always
-" :h mode() to see all modes
-function! ReadOnly()
-    if &readonly || !&modifiable
-        return '[RO]'
-    else
+"{{{ Custom Statusline by kristijanhusak
+"modified to fit colorscheme, all rights reserved
+let s:cache = {'branch': ''}
+
+augroup custom_statusline
+    autocmd!
+    autocmd VimEnter * silent! call FugitiveDetect(expand('<afile>')) | let s:cache.branch = fugitive#head()
+    autocmd BufEnter,WinEnter * setlocal statusline=%!Statusline()
+    autocmd BufLeave,WinLeave * setlocal statusline=%f\ %y\ %m
+    autocmd User FugitiveChanged let s:cache.branch = fugitive#head()
+    autocmd VimEnter,ColorScheme * call s:set_statusline_colors()
+augroup END
+
+function! s:set_statusline_colors() abort
+    let s:normal_bg = synIDattr(hlID('Normal'), 'bg')
+    let s:normal_fg = synIDattr(hlID('Normal'), 'fg')
+    let s:warning_fg = synIDattr(hlID(&background ==? 'dark' ? '#e0dd1f' : 'WarningMsg'), 'fg')
+    let s:error_fg = synIDattr(hlID('ErrorMsg'), &background ==? 'dark' ? 'bg' : 'fg')
+    silent! exe 'hi StItem ctermbg=231 ctermfg=236 guibg='.s:normal_bg.' guifg='.s:normal_fg.' gui=NONE'
+    silent! exe 'hi StSep ctermbg=236 ctermfg=231 guifg='.s:normal_fg.' guibg=NONE gui=NONE'
+    silent! exe 'hi StErr guibg='.s:error_fg.' guifg='.s:normal_bg.' gui=bold'
+    silent! exe 'hi StErrSep guifg='.s:error_fg.' guibg=NONE gui=NONE'
+    silent! exe 'hi StWarn guibg='.s:warning_fg.' guifg='.s:normal_bg.' gui=bold'
+    silent! exe 'hi StWarnSep guifg='.s:warning_fg.' guibg=NONE gui=NONE'
+    silent! exe 'hi Statusline guifg=NONE guibg='.s:normal_fg.' gui=NONE cterm=NONE'
+endfunction
+
+function! s:sep(item, ...) abort
+    let l:opts = get(a:, '1', {})
+    let l:before = get(l:opts, 'before', ' ')
+    let l:sep_color = get(l:opts, 'sep_color', '%#StSep#')
+    let l:color = get(l:opts, 'color', '%#StItem#')
+
+    return l:before.l:sep_color.'▒▓█'.l:color.a:item.l:sep_color.'█▓▒%*'
+endfunction
+
+function! s:sep_if(item, condition, ...) abort
+    if !a:condition
         return ''
     endif
+    let l:opts = get(a:, '1', {})
+    return s:sep(a:item, l:opts)
 endfunction
-function! GitBranch()
-    return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+
+let s:st_err = {'color': '%#StErr#', 'sep_color': '%#StErrSep#'}
+let s:st_warn = {'color': '%#StWarn#', 'sep_color': '%#StWarnSep#'}
+let s:st_mode = {'color': '%#StMode#', 'sep_color': '%#StModeSep#'}
+
+function! Statusline() abort
+    let l:mode = s:mode_statusline()
+    let l:statusline = s:sep(l:mode, extend({'before': ''}, s:st_mode))
+    let l:git_status = s:git_statusline()
+    let l:statusline .= s:sep_if(l:git_status, !empty(l:git_status))
+    let l:path = isdirectory(expand('%')) ? '%F': '%f' . " "
+    let l:statusline .= s:sep(l:path, &modified ? s:st_err : {})                  "File path
+    let l:statusline .= s:sep_if(' + ', &modified, s:st_err)                      "Modified indicator
+    let l:statusline .= s:sep_if(' - ', !&modifiable, s:st_err)                   "Modifiable indicator
+    let l:statusline .= s:sep_if('%w', &previewwindow)                            "Preview indicator
+    let l:statusline .= s:sep_if('%r', &readonly)                                 "Read only indicator
+    let l:statusline .= s:sep_if('%q', &buftype ==? 'quickfix')                   "Quickfix list indicator
+    let l:statusline .= '%='                                                      "Start right side layout
+    let l:ft = &filetype . " "
+    let l:statusline .= s:sep_if(l:ft, !empty(l:ft))                              "Filetype
+    let l:statusline .= s:sep(': %c', s:st_mode)                                "Column number
+    let l:statusline .= s:sep(': %l/%L', s:st_mode)                              "Current line number/Total line numbers
+    let l:statusline .= s:sep('%p%%', s:st_mode)                                  "Percentage
+    let l:err = s:ale_status('error')
+    let l:warn = s:ale_status('warning')
+    let l:statusline .= s:sep_if(l:err, !empty(l:err), s:st_err)
+    let l:statusline .= s:sep_if(l:warn, !empty(l:warn), s:st_warn)
+    let l:statusline .= '%<'
+    return l:statusline
 endfunction
-function! StatuslineGit()
-    let l:branchname = GitBranch()
-    return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+
+function! s:ale_status(type) abort
+    if !exists('g:loaded_ale')
+        return ''
+    endif
+
+    let l:count = ale#statusline#Count(bufnr(''))
+    let l:errors = l:count.error + l:count.style_error
+    let l:warnings = l:count.warning + l:count.style_warning
+
+    if a:type ==? 'error' && l:errors
+        return printf('%d E', l:errors)
+    endif
+
+    if a:type ==? 'warning' && l:warnings
+        return printf('%d W', l:warnings)
+    endif
+
+    return ''
 endfunction
-set laststatus=2
-set statusline=
-set statusline+=%{StatuslineGit()}
-set statusline+=%8*\ [%n]                                " buffernr
-set statusline+=%8*\ %<%f\ %{ReadOnly()}\ %m\ %w\        " File+path
-set statusline+=%#warningmsg#
-set statusline+=%*
-set statusline+=%9*\ %=                                  " Space
-set statusline+=%8*\ %y\                                 " FileType
-set statusline+=%7*\ %{(&fenc!=''?&fenc:&enc)}\[%{&ff}]\
-" Encoding & Fileformat
-set statusline+=%0*\ %3p%%\ \ %l:\ %3c\                 " Rownumber/total (%)
-hi statuslinenc ctermfg=8 ctermbg=7
-hi TabLine      ctermfg=7 ctermbg=8
-hi TabLineFill  ctermfg=0 ctermbg=7
-hi TabLineSel   ctermfg=8 ctermbg=7
-hi User1 ctermfg=007
-hi User2 ctermfg=007
-hi User3 ctermfg=007
-hi User4 ctermfg=007
-hi User5 ctermfg=007 ctermbg=007
-hi User6 ctermfg=007
-hi User7 ctermfg=027 | " controls unicode color
-hi User8 ctermfg=007 | " controls filename color
-hi User9 ctermfg=007
+
+function! s:git_statusline() abort
+    if !exists('b:gitgutter')
+        return s:with_icon(s:cache.branch, "\ue0a0")
+    endif
+    let [l:added, l:modified, l:removed] = get(b:gitgutter, 'summary', [0, 0, 0])
+    let l:result = l:added == 0 ? '' : ' +'.l:added
+    let l:result .= l:modified == 0 ? '' : ' ~'.l:modified
+    let l:result .= l:removed == 0 ? '' : ' -'.l:removed
+    let l:result = join(filter([s:cache.branch, l:result], {-> !empty(v:val) }), '')
+    return s:with_icon(l:result, "\ue0a0")
+endfunction
+
+function! s:mode_statusline() abort
+    let l:mode = mode()
+    call s:mode_highlight(l:mode)
+    let l:modeMap = {
+    \ 'n'  : 'NORMAL',
+    \ 'i'  : 'INSERT',
+    \ 'R'  : 'REPLACE',
+    \ 'v'  : 'VISUAL',
+    \ 'V'  : 'V-LINE',
+    \ 'c'  : 'COMMAND',
+    \ '' : 'V-BLOCK',
+    \ 's'  : 'SELECT',
+    \ 'S'  : 'S-LINE',
+    \ '' : 'S-BLOCK',
+    \ 't'  : 'TERMINAL'}
+    return get(l:modeMap, l:mode, 'UNKNOWN')
+endfunction
+
+function! s:mode_highlight(mode) abort
+    if a:mode ==? 'i'
+        " hi StMode guibg=#83a598 guifg=#3c3836
+        hi StMode ctermbg=231 ctermfg=236 guibg=#39BAE6 guifg=#3c3836
+        hi StModeSep guifg=#39BAE6 guibg=NONE
+    elseif a:mode =~? '\(v\|V\|\|s\|S\|\)'
+        " hi StMode guibg=#fe8019 guifg=#3c3836
+        hi StMode ctermbg=231 ctermfg=236 guibg=#FF8F40 guifg=#3c3836
+        hi StModeSep guifg=#FF8F40 guibg=NONE
+    elseif a:mode ==? 'R'
+        " hi StMode guibg=#8ec07c guifg=#3c3836
+        hi StMode ctermbg=231 ctermfg=236 guibg=#FF3333 guifg=#3c3836
+        hi StModeSep guifg=#FF3333 guibg=NONE
+    else
+        silent! exe 'hi StMode guibg='.s:normal_fg.' guifg='.s:normal_bg.' gui=NONE'
+        silent! exe 'hi StModeSep guifg='.s:normal_fg.' guibg=NONE gui=NONE'
+    endif
+endfunction
+
+function! s:with_icon(value, icon) abort
+    if empty(a:value)
+        return a:value
+    endif
+    return a:icon.' '.a:value
+endfunction
 "}}}
 "}}}
 "{{{ Keybindings
@@ -137,19 +243,46 @@ ca Cd cd
 ca Wq wq
 "}}}
 "{{{ Navigating split windows
+" When you have a split screen like when you do :split (horizontal) or
+" :vsplit (vertical), you can move your cursor to that split screen by
+" using these below key mappings to move the cursor in a direction.
+" 
+"            Ctrl + K
+"                ^
+"   Ctrl + H   <-+->   Ctrl + L
+"                v
+"            Ctrl + J
+"
 noremap <C-J> <C-W><C-J>
 noremap <C-K> <C-W><C-K>
 noremap <C-L> <C-W><C-L>
 noremap <C-H> <C-W><C-H>
 "}}}
 "{{{ Adjusting split windows
+" When you have a split screen like when you do :split (horizontal) or
+" :vsplit (vertical), you can adjust the border of the current screen by
+" using these mappings: 
+" 
+"            Ctrl + Up
+"                ^
+"      \ + ]   <-+->   \ + [
+"                v
+"           Ctrl + Down
+"
 noremap <C-up> <C-w>+
 noremap <C-down> <C-w>-
 noremap <leader>] <C-w>>
 noremap <leader>[ <C-w><
 "}}}
 "{{{ Navigating Tabs
-" NOTE: gt is default
+" These mappings are shortcuts for creating, closing, and navigating
+" tabs.
+" 
+" gt --> go to the next tab
+" th --> go to the prev tab
+" tn --> create a new tab
+" tc --> close the current tab
+
 nnoremap gt :tabnext<CR>
 nnoremap th :tabprev<CR>
 nnoremap tn :tabnew<CR>
