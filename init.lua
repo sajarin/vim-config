@@ -89,15 +89,6 @@ require('lazy').setup({
     event = { "BufRead", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" }
   },
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-      "nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
-      "MunifTanjim/nui.nvim",
-    }
-  },
   {'rebelot/kanagawa.nvim', lazy = true, event = 'VeryLazy'},
   {'lukas-reineke/indent-blankline.nvim', main = "ibl", opts = {}},
   {'nvim-lualine/lualine.nvim', event = 'VeryLazy'},
@@ -113,8 +104,8 @@ require('lazy').setup({
   {'nvim-telescope/telescope.nvim',
     cmd = 'Telescope',
     branch = '0.1.x',
+    requires = { 'nvim-lua/plenary.nvim' },
     dependencies = {
-      'nvim-lua/plenary.nvim',
       {'ahmedkhalf/project.nvim', event = "VeryLazy"}
     },
   },
@@ -446,12 +437,12 @@ dashboard.section.header.val = {
 }
 
 dashboard.section.buttons.val = {
-  dashboard.button("SPC f", "🔍  Find file", ":Telescope find_files <CR>"),
-  dashboard.button("SPC e", "📄  New file", ":ene <BAR> startinsert <CR>"),
-  dashboard.button("SPC p", "📁  Find project", ":Telescope projects <CR>"),
-  dashboard.button("SPC r", "🚀  Recently used files", ":Telescope oldfiles <CR>"),
-  dashboard.button("SPC c", "🛠️  Configuration", ":e $MYVIMRC <CR>"),
-  dashboard.button("SPC q", "❌  Quit Neovim", ":qa<CR>"),
+  dashboard.button("SPC f", "🔍 Find file", ":Telescope find_files <CR>"),
+  dashboard.button("SPC e", "📄 New file", ":ene <BAR> startinsert <CR>"),
+  dashboard.button("SPC p", "📁 Find project", ":Telescope projects <CR>"),
+  dashboard.button("SPC r", "🚀 Recently used files", ":Telescope oldfiles <CR>"),
+  dashboard.button("SPC c", "🛠️ Configuration", ":e $MYVIMRC <CR>"),
+  dashboard.button("SPC q", "❌ Quit Neovim", ":qa<CR>"),
 }
 dashboard.section.header.opts.hl = "Include"
 dashboard.section.buttons.opts.hl = "Keyword"
@@ -483,21 +474,24 @@ vim.api.nvim_set_hl(0, "VimwikiHeader6", {fg="#D27E99"}) -- sakura pink
 -- [[ Indent-blankline Config ]] {{{
 -- See `:help ibl`
 require('ibl').setup {
---char = '│',
---space_char_blankline = " ",
---show_current_context = true,
---show_current_context_start = true,
---remove_blankline_trail = true
---filetype_exclude = {
---  "alpha", "dashboard", "TelescopeResults", "TelescopePrompt", "lazy", "packer", "vimwiki",
---  "NvimTree", "lsp-installer", "lspinfo", "checkhealth", "help", "man", "mason", "lazyterm", "toggleterm"
---},
---buftype_exclude = { "terminal", "_.*" },
---context_patterns = {
---  "class", "return", "function", "method", "^if", "^while", "jsx_element", "^for", "^object", "^table", "block",
---  "arguments", "if_statement", "else_clause", "jsx_element", "jsx_self_closing_element", "try_statement",
---  "catch_clause", "import_statement", "operation_type"
---}
+  debounce = 100,
+  indent = { char = "┊" },
+  whitespace = {
+    highlight = { "Whitespace", "NonText" },
+  },
+  scope = {
+    char = "▎",
+  },
+  exclude = {
+    filetypes = {
+      "alpha", "dashboard", "TelescopeResults", "TelescopePrompt", "lazy",
+      "vimwiki", "NvimTree", "lsp-installer", "checkhealth", "mason",
+      "lazyterm", "toggleterm"
+    },
+    buftypes = {
+      "_.*"
+    },
+  },
 }
 --- }}}
 -- [[ Gitsigns Config ]] {{{
@@ -511,13 +505,7 @@ require('gitsigns').setup {
     changedelete = { hl = 'GitSignsChange', text = '~', numhl = 'GitSignsChangeNr', linehl = 'GitSignsChangeLn' },
     untracked = { hl = 'GitSignsUntracked', text = '┆', numhl = 'GitSignsUntracked', linehl = 'GitSignsUntrackedLn' },
   },
-  signcolumn = true,
-  numhl = false,
-  linehl = false,
   watch_gitdir = { interval = 1000, follow_files = true },
-  sign_priority = 6,
-  update_debounce = 200,
-  status_formatter = nil,
   attach_to_untracked = true,
   current_line_blame = true,
   current_line_blame_formatter = '<author>, <author_time:%m-%d-%Y> - <summary>',
@@ -628,7 +616,10 @@ require('nvim-treesitter.configs').setup {
   ensure_installed = {
     'c', 'cpp', 'go', 'lua', 'python', 'rust', 'typescript', 'vimdoc', 'vim', 'svelte', 'css', 'json', 'javascript', 'java', 'html', 'scss'
   },
-
+  modules = {},
+  sync_install = false,
+  ignore_install = {},
+  auto_install = false,
   highlight = { enable = true },
   indent = { enable = true, },
   incremental_selection = {
@@ -643,22 +634,7 @@ require('nvim-treesitter.configs').setup {
 }
 --}}}
 -- [[ Harpoon Config ]] {{{
-require('harpoon').setup({
-  global_settings = {
-    -- sets the marks upon calling `toggle` on the ui, instead of require `:w`.
-    save_on_toggle = false,
-    -- saves the harpoon file upon every change. disabling is unrecommended.
-    save_on_change = true,
-    -- sets harpoon to run the command immediately as it's passed to the terminal when calling `sendCommand`.
-    enter_on_sendcmd = false,
-    -- closes any tmux windows harpoon that harpoon creates when you close Neovim.
-    tmux_autoclose_windows = false,
-    -- filetypes that you want to prevent from adding to the harpoon list menu.
-    excluded_filetypes = { "harpoon" },
-    -- set marks specific to each git branch inside git repository
-    mark_branch = false,
-  }
-})
+require('harpoon').setup()
 -- }}}
 -- [[ Colorscheme Config ]] {{{
 require('kanagawa').setup({
@@ -727,46 +703,6 @@ require('mason').setup()
 -- }}}
 -- [[ todo-comments.nvim Config ]] {{{
 require'todo-comments'.setup({
-  signs = true, -- show icons in the signs column
-  sign_priority = 8, -- sign priority
-  -- keywords recognized as todo comments
-  keywords = {
-    FIX = {
-      icon = " ", -- icon used for the sign, and in search results
-      color = "error", -- can be a hex color, or a named color (see below)
-      alt = { "FIXME", "BUG", "FIXIT", "ISSUE" }, -- a set of other keywords that all map to this FIX keywords
-      -- signs = false, -- configure signs for some keywords individually
-    },
-    TODO = { icon = " ", color = "info" },
-    HACK = { icon = " ", color = "warning" },
-    WARN = { icon = " ", color = "warning", alt = { "WARNING", "XXX" } },
-    PERF = { icon = " ", alt = { "OPTIM", "PERFORMANCE", "OPTIMIZE" } },
-    NOTE = { icon = " ", color = "hint", alt = { "INFO" } },
-    TEST = { icon = "⏲ ", color = "test", alt = { "TESTING", "PASSED", "FAILED" } },
-  },
-  gui_style = {
-    fg = "NONE", -- The gui style to use for the fg highlight group.
-    bg = "BOLD", -- The gui style to use for the bg highlight group.
-  },
-  merge_keywords = true, -- when true, custom keywords will be merged with the defaults
-  -- highlighting of the line containing the todo comment
-  -- * before: highlights before the keyword (typically comment characters)
-  -- * keyword: highlights of the keyword
-  -- * after: highlights after the keyword (todo text)
-  highlight = {
-    multiline = true, -- enable multine todo comments
-    multiline_pattern = "^.", -- lua pattern to match the next multiline from the start of the matched keyword
-    multiline_context = 10, -- extra lines that will be re-evaluated when changing a line
-    before = "", -- "fg" or "bg" or empty
-    keyword = "wide", -- "fg", "bg", "wide", "wide_bg", "wide_fg" or empty. (wide and wide_bg is the same as bg, but will also highlight surrounding characters, wide_fg acts accordingly but with fg)
-    after = "fg", -- "fg" or "bg" or empty
-    pattern = [[.*<(KEYWORDS)\s*:]], -- pattern or table of patterns, used for highlighting (vim regex)
-    comments_only = true, -- uses treesitter to match keywords in comments only
-    max_line_len = 400, -- ignore lines longer than this
-    exclude = {}, -- list of file types to exclude highlighting
-  },
-  -- list of named colors where we try to extract the guifg from the
-  -- list of highlight groups or use the hex color if hl not found as a fallback
   colors = {
     error = { "DiagnosticError", "ErrorMsg", "#DC2626" },
     warning = { "DiagnosticWarn", "WarningMsg", "#FBBF24" },
@@ -774,20 +710,6 @@ require'todo-comments'.setup({
     hint = { "DiagnosticHint", "#10B981" },
     default = { "Identifier", "#7C3AED" },
     test = { "Identifier", "#FF00FF" }
-  },
-  search = {
-    command = "rg",
-    args = {
-      "--color=never",
-      "--no-heading",
-      "--with-filename",
-      "--line-number",
-      "--column",
-    },
-    -- regex that will be used to match keywords.
-    -- don't replace the (KEYWORDS) placeholder
-    pattern = [[\b(KEYWORDS):]], -- ripgrep regex
-    -- pattern = [[\b(KEYWORDS)\b]], -- match without the extra colon. You'll likely get false positives
   },
 })
 -- }}}
@@ -1017,10 +939,19 @@ cmp.setup {
   snippet = {
     expand = function(args)
       luasnip.lsp_expand(args.body)
-    end,
+    end
   },
 
+  sources = cmp.config.sources({
+    { name = 'path' },
+    { name = 'nvim_lsp' },
+    { name = 'luasnip' },
+    { name = 'buffer', keyword_length = 5, max_item_count = 5 },
+  }),
+
   formatting = {
+    fields = { 'abbr', 'kind', 'menu' },
+    expandable_indicator = false,
     format = lspkind.cmp_format({
       symbol_map = {
         Text = "", Method = "", Function = "ƒ", Constructor = "", Field = "󰜢", Variable = "󰀫", Class = "󰠱", Interface = "",
@@ -1070,11 +1001,9 @@ cmp.setup {
       else fallback() end
     end, { 'i', 's' }),
   },
-  sources = { { name = 'path' }, { name = 'buffer', keyword_length = 5, max_item_count = 5 }, { name = 'nvim_lsp' }, { name = 'luasnip' } },
   experimental = { ghost_text = false },
 }
 -- }}}
-vim.api.nvim_set_current_dir("~")
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
