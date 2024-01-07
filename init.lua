@@ -3,7 +3,7 @@
 --│ Website Link:   https://github.com/Shaedil/vim-config             │
 --│ Description:    Edited version of nvim-lua/kickstart.nvim         │
 --│ Last Modified:  1/7/24                                            │
---│ StartUpTimeAvg: 340 ms                                            │
+--│ StartUpTimeAvg: 320 ms                                            │
 --└───────────────────────────────────────────────────────────────────┘
 -- lazy.nvim Bootstrap {{{
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -42,8 +42,8 @@ require('lazy').setup({
     event = 'InsertEnter',
     dependencies = {
       {'hrsh7th/cmp-nvim-lsp'},
-      {'saadparwaiz1/cmp_luasnip'},
-      {'L3MON4D3/LuaSnip', dependencies = 'rafamadriz/friendly-snippets'},
+      {'saadparwaiz1/cmp_luasnip', enabled = false},
+      {'L3MON4D3/LuaSnip', dependencies = 'rafamadriz/friendly-snippets', enabled=false},
     }
   },
   {'tpope/vim-rhubarb',
@@ -57,7 +57,7 @@ require('lazy').setup({
     },
     ft='fugitive'
   },
-  {'numToStr/Comment.nvim', keys = {'gc', 'gcc', 'gco', 'gc0', 'gcA'}},
+  {'tpope/vim-commentary'},
   {'vimwiki/vimwiki',
     init = function() -- replace 'config' with init'
       vim.g.vimwiki_list = {{
@@ -66,7 +66,7 @@ require('lazy').setup({
       vim.g.vimwiki_folding = 'syntax'
     end,
   },
-  {'github/copilot.vim', cmd = 'Copilot', build = ":Copilot setup"},
+  {'github/copilot.vim', build = ":Copilot setup"},
   {'bronson/vim-visual-star-search', keys = {'*', '#', '<leader>*'}, lazy = true},
   {'ThePrimeagen/harpoon', event = "VeryLazy"},
   {'tpope/vim-speeddating', keys = {'C-A', 'C-X'}},
@@ -574,7 +574,7 @@ for type, icon in pairs(signs) do
 end
 -- }}}
 -- Comment.nvim  {{{
-require('Comment').setup()
+-- require('Comment').setup()
 -- }}}
 -- Project.nvim  {{{
 require('project_nvim').setup({silent_chdir = true, show_hidden = false})
@@ -816,22 +816,22 @@ require('fidget').setup({})
 local cmp = require 'cmp'
 local str = require 'cmp.utils.str'
 local types = require 'cmp.types'
-local luasnip = require 'luasnip'
+-- local luasnip = require 'luasnip'
 local lspkind = require 'lspkind'
 
-require('luasnip.loaders.from_vscode').lazy_load()
-luasnip.config.setup {}
+-- require('luasnip.loaders.from_vscode').lazy_load()
+-- luasnip.config.setup {}
 
 cmp.setup {
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end
-  },
+  -- snippet = {
+  --   expand = function(args)
+  --     luasnip.lsp_expand(args.body)
+  --   end
+  -- },
   sources = cmp.config.sources({
     { name = 'path' },
     { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    -- { name = 'luasnip' },
     { name = 'buffer', keyword_length = 5, max_item_count = 5 },
   }),
 
@@ -876,12 +876,12 @@ cmp.setup {
     ['<CR>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true, },
     ['<C-n>'] = cmp.mapping(function(fallback)
       if cmp.visible() then cmp.select_next_item()
-      elseif luasnip.expand_or_jumpable() then luasnip.expand_or_jump()
+      -- elseif luasnip.expand_or_jumpable() then luasnip.expand_or_jump()
       else fallback() end
     end, { 'i', 's' }),
     ['<C-p>'] = cmp.mapping(function(fallback)
       if cmp.visible() then cmp.select_prev_item()
-      elseif luasnip.jumpable(-1) then luasnip.jump(-1)
+      -- elseif luasnip.jumpable(-1) then luasnip.jump(-1)
       else fallback() end
     end, { 'i', 's' }),
   },
