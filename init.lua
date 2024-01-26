@@ -42,8 +42,6 @@ require('lazy').setup({
     event = 'InsertEnter',
     dependencies = {
       {'hrsh7th/cmp-nvim-lsp'},
-      {'saadparwaiz1/cmp_luasnip', enabled = false},
-      {'L3MON4D3/LuaSnip', dependencies = 'rafamadriz/friendly-snippets', enabled=false},
     }
   },
   {'tpope/vim-rhubarb',
@@ -58,13 +56,20 @@ require('lazy').setup({
     ft='fugitive'
   },
   {'tpope/vim-commentary'},
-  {'vimwiki/vimwiki',
-    init = function() -- replace 'config' with init'
+  {'vimwiki/vimwiki', -- WARN: Deprecated, use Obsidian instead
+    init = function()
       vim.g.vimwiki_list = {{
         path = '~/vimwiki',
       }}
       vim.g.vimwiki_folding = 'syntax'
     end,
+    enabled = false,
+  },
+  {'epwalsh/obsidian.nvim',
+    version = "*",
+    lazy = true,
+    ft = "markdown",
+    dependencies={"nvim-lua/plenary.nvim"},
   },
   {'github/copilot.vim', build = ":Copilot setup"},
   {'bronson/vim-visual-star-search', keys = {'*', '#', '<leader>*'}, lazy = true},
@@ -135,14 +140,14 @@ vim.opt.guifont = "JetBrainsMono NFM:h10"
 vim.opt.breakindent = true
 vim.opt.synmaxcol = 300
 -- autocompletion + path + undo
-vim.opt.path = '.,**'
+vim.opt.path = '.,,**'
 vim.go.wildmode = 'longest:full'
 vim.go.wildignore = "*.swip, *.bak, *.pyc, *.class, *.sln, *.Master, *.csproj, *.csproj.user, *.cache, *.dll, *.pdb, *.min.*, */.git/**/*, */.hg/**/*, */.svn/**/*, tags, *.tar.*"
 vim.opt.undofile = true
 -- Fold settings
 vim.opt.foldmethod = 'marker'
--- vim.opt.foldnestmax = 10
--- vim.opt.foldlevelstart = 0
+vim.opt.foldnestmax = 10
+vim.opt.foldlevelstart = 0
 -- indentation
 vim.opt.tabstop=2
 vim.opt.shiftwidth=2
@@ -384,18 +389,6 @@ vim.api.nvim_create_autocmd("User", {
 })
 vim.cmd([[autocmd User AlphaReady echo 'Alpha is ready']])
 -- }}}
--- Vimwiki {{{
--- change vimwiki to markdown for markdown files 
-vim.api.nvim_command("autocmd BufEnter,BufRead,BufNewFile *.md set filetype=markdown")
-vim.api.nvim_command("autocmd BufNewFile,BufRead *.wiki setlocal nonu nornu nofoldenable")
-
-vim.api.nvim_set_hl(0, "VimwikiHeader1", {fg="#98BB6C"}) -- spring green
-vim.api.nvim_set_hl(0, "VimwikiHeader2", {fg="#FF5D62"}) -- peach red
-vim.api.nvim_set_hl(0, "VimwikiHeader3", {fg="#FFA066"}) -- surimi orange
-vim.api.nvim_set_hl(0, "VimwikiHeader4", {fg="#7FB4CA"}) -- crystal blue
-vim.api.nvim_set_hl(0, "VimwikiHeader5", {fg="#957FB8"}) -- oni violet
-vim.api.nvim_set_hl(0, "VimwikiHeader6", {fg="#D27E99"}) -- sakura pink
--- }}}
 -- Indent-blankline  {{{
 -- See `:help ibl`
 require('ibl').setup {
@@ -454,7 +447,7 @@ require('telescope').setup {
     generic_sorter = require('telescope.sorters').get_generic_fuzzy_sorter,
     path_display = { "truncate" },
     winblend = 0,
-    border = {},
+    border = true,
     vimgrep_arguments = {
       'rg',
       '--color=never',
@@ -573,9 +566,6 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = "" })
 end
 -- }}}
--- Comment.nvim  {{{
--- require('Comment').setup()
--- }}}
 -- Project.nvim  {{{
 require('project_nvim').setup({silent_chdir = true, show_hidden = false})
 -- }}}
@@ -605,6 +595,17 @@ require'todo-comments'.setup({
 -- }}}
 -- Colorizer {{{
 require 'colorizer'.setup()
+-- }}}
+-- obsidian.nvim {{{
+require("obsidian").setup({
+  -- WARN: Change this to your own vault location!
+  workspaces = {
+    {
+      name = "Mind Bank",
+      path = "~/iCloudDrive/Mind Bank/"
+    },
+  },
+})
 -- }}}
 -- }}}
 -- Keymappings {{{
@@ -678,6 +679,15 @@ vim.api.nvim_set_keymap('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<CR>', { 
 vim.api.nvim_set_keymap('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<CR>', { desc = '[D]iagnostic next' })
 vim.api.nvim_set_keymap('n', '<leader>e', '<cmd>lua vim.diagnostic.open_float()<CR>', { desc = '[D]iagnostic open float' })
 vim.api.nvim_set_keymap('n', '<leader>q', '<cmd>lua vim.diagnostic.setloclist()<CR>', { desc = '[D]iagnostic set loclist' })
+-- Obsidian keymaps
+vim.api.nvim_set_keymap('n', '<leader>on', ':ObsidianNew ', { desc = '[O]bsidian [N]ew note' })
+vim.api.nvim_set_keymap('n', '<leader>oo', '<cmd>ObsidianQuickSwitch<CR>', { desc = '[O]bsidian [O]pen note' })
+vim.api.nvim_set_keymap('v', '<leader>ol', ':ObsidianLink ', { desc = '[O]bsidian [L]ink' })
+vim.api.nvim_set_keymap('v', '<leader>oln',':ObsidianLinkNew ', { desc = '[O]bsidian [L]ink [N]ew' })
+vim.api.nvim_set_keymap('n', '<leader>or', '<cmd>ObsidianRename<CR>', { desc = '[O]bsidian [R]ename' })
+vim.api.nvim_set_keymap('n', '<leader>os', '<cmd>ObsidianSearch<CR>', { desc = '[O]bsidian [S]earch' })
+vim.api.nvim_set_keymap('n', '<leader>op', '<cmd>ObsidianPasteImg<CR>', { desc = '[O]bsidian [P]aste image' })
+vim.api.nvim_set_keymap('n', '<leader>ob', '<cmd>ObsidianBacklinks<CR>', { desc = '[O]bsidian [B]acklinks' })
 -- }}}
 -- Custom Functions, Commands & Autocommands {{{
 -- A function that deletes all unmodified buffers except current buffer {{{
@@ -747,6 +757,10 @@ endfunction
 set foldtext=NeatFoldText()
 ]])
 -- }}}
+-- Forces syntax highlighting for markdown files {{{
+-- for some reason, markdown files are not read syntactically as markdown, this fixes that.
+vim.api.nvim_command("autocmd BufEnter,BufRead,BufNewFile *.md set syntax=markdown")
+-- }}}
 -- }}}
 -- LSP settings {{{
 local on_attach = function(_, bufnr)
@@ -806,9 +820,11 @@ mason_lspconfig.setup_handlers {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = servers[server_name],
+      handlers = handlers,
     }
   end,
 }
+
 -- Turn on lsp status information
 require('fidget').setup({})
 
@@ -816,22 +832,12 @@ require('fidget').setup({})
 local cmp = require 'cmp'
 local str = require 'cmp.utils.str'
 local types = require 'cmp.types'
--- local luasnip = require 'luasnip'
 local lspkind = require 'lspkind'
 
--- require('luasnip.loaders.from_vscode').lazy_load()
--- luasnip.config.setup {}
-
 cmp.setup {
-  -- snippet = {
-  --   expand = function(args)
-  --     luasnip.lsp_expand(args.body)
-  --   end
-  -- },
   sources = cmp.config.sources({
     { name = 'path' },
     { name = 'nvim_lsp' },
-    -- { name = 'luasnip' },
     { name = 'buffer', keyword_length = 5, max_item_count = 5 },
   }),
 
@@ -840,7 +846,7 @@ cmp.setup {
     expandable_indicator = false,
     format = lspkind.cmp_format({
       symbol_map = {
-        Text = "", Method = "", Function = "ƒ", Constructor = "", Field = "󰜢", Variable = "󰀫", Class = "󰠱", Interface = "",
+        Text = "", Method = "ƒ", Function = "", Constructor = "", Field = "󰄶", Variable = "󰀫", Class = "󰠱", Interface = "",
         Module = "", Property = "󰜢", Unit = "", Value = "", Enum = "", Keyword = "", Snippet = "", Color = "", File = "",
         Reference = "", Folder = "", EnumMember = "", Constant = "", Struct = "", Event = "", Operator = "", TypeParameter = "<>",
       },
@@ -876,12 +882,10 @@ cmp.setup {
     ['<CR>'] = cmp.mapping.confirm { behavior = cmp.ConfirmBehavior.Replace, select = true, },
     ['<C-n>'] = cmp.mapping(function(fallback)
       if cmp.visible() then cmp.select_next_item()
-      -- elseif luasnip.expand_or_jumpable() then luasnip.expand_or_jump()
       else fallback() end
     end, { 'i', 's' }),
     ['<C-p>'] = cmp.mapping(function(fallback)
       if cmp.visible() then cmp.select_prev_item()
-      -- elseif luasnip.jumpable(-1) then luasnip.jump(-1)
       else fallback() end
     end, { 'i', 's' }),
   },
