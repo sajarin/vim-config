@@ -1,8 +1,0 @@
-/* classes are (.) and ids are (#) */
-@font-face {}
-@font-face {}
-@font-face {}
-@font-face {}
-html {}
-body {}
-@media(min-width:) {}

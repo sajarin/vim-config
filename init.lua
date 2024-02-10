@@ -3,7 +3,7 @@
 --│ Website Link:   https://github.com/Shaedil/vim-config             │
 --│ Description:    Edited version of nvim-lua/kickstart.nvim         │
 --│ Last Modified:  1/7/24                                            │
---│ StartUpTimeAvg: 320 ms                                            │
+--│ StartUpTimeAvg: 280 ms                                            │
 --└───────────────────────────────────────────────────────────────────┘
 -- lazy.nvim Bootstrap {{{
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
@@ -26,7 +26,7 @@ require('lazy').setup({
   {'folke/lazy.nvim',
     version = '*',
     lazy = true,
-    colorscheme = { "kanagawa" },
+    colorscheme = { "bamboo" },
   },
   {'williamboman/mason.nvim', cmd = "Mason"},
   {'neovim/nvim-lspconfig',
@@ -90,7 +90,8 @@ require('lazy').setup({
     event = { "BufRead", "BufNewFile" },
     dependencies = { "nvim-lua/plenary.nvim" }
   },
-  {'rebelot/kanagawa.nvim', lazy = true, event = 'VeryLazy'},
+  {'rebelot/kanagawa.nvim', lazy = true, event = 'VeryLazy', enabled=false},
+  {'ribru17/bamboo.nvim', lazy = true, event = 'VeryLazy'},
   {'lukas-reineke/indent-blankline.nvim', main = "ibl"},
   {'nvim-lualine/lualine.nvim', event = "VeryLazy"},
   {'lewis6991/gitsigns.nvim', event = 'BufReadPre', dependencies = {'nvim-lua/plenary.nvim'}},
@@ -300,7 +301,7 @@ local config = {
         color = { fg = lualine_colors.violet, gui = 'bold' },
       },
       { 'diff',
-        symbols = { added = ' ', modified = '柳 ', removed = ' ' },
+        symbols = { added = ' ', modified = ' ', removed = ' ' },
         diff_color = {
           added = { fg = lualine_colors.green },
           modified = { fg = lualine_colors.orange },
@@ -528,36 +529,36 @@ require('nvim-treesitter.configs').setup {
 require('harpoon').setup()
 -- }}}
 -- Colorscheme  {{{
-require('kanagawa').setup({
-  globalStatus = true,
-  theme = "dark",
-  colors = {
-    theme = { all = { ui = { bg_gutter = "none" } } }
-  },
-  overrides = function(colors)
-    local theme = colors.theme
-    return {
-      NormalFloat = { bg = "none" },
-      FloatBorder = { bg = "none" },
-      FloatTitle = { bg = "none" },
-      NormalDark = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m3 },
-      LazyNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
-      MasonNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
-      Pmenu = { fg = theme.ui.shade0, bg = theme.ui.bg_p1, }, -- add `blend = vim.o.pumblend` to enable transparency
-      PmenuSel = { fg = "NONE", bg = theme.ui.bg_p2 },
-      PmenuSbar = { bg = theme.ui.bg_m1 },
-      PmenuThumb = { bg = theme.ui.bg_p2 },
-      TelescopeTitle = { fg = theme.ui.special, bold = true },
-      TelescopePromptNormal = { bg = theme.ui.bg_p1 },
-      TelescopePromptBorder = { fg = theme.ui.bg_p1, bg = theme.ui.bg_p1 },
-      TelescopeResultsNormal = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m1 },
-      TelescopeResultsBorder = { fg = theme.ui.bg_m1, bg = theme.ui.bg_m1 },
-      TelescopePreviewNormal = { bg = theme.ui.bg_dim },
-      TelescopePreviewBorder = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
-    }
-  end,
-})
-vim.cmd("colorscheme kanagawa")
+-- require('kanagawa').setup({
+--   globalStatus = true,
+--   theme = "dark",
+--   colors = {
+--     theme = { all = { ui = { bg_gutter = "none" } } }
+--   },
+--   overrides = function(colors)
+--     local theme = colors.theme
+--     return {
+--       NormalFloat = { bg = "none" },
+--       FloatBorder = { bg = "none" },
+--       FloatTitle = { bg = "none" },
+--       NormalDark = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m3 },
+--       LazyNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
+--       MasonNormal = { bg = theme.ui.bg_m3, fg = theme.ui.fg_dim },
+--       Pmenu = { fg = theme.ui.shade0, bg = theme.ui.bg_p1, }, -- add `blend = vim.o.pumblend` to enable transparency
+--       PmenuSel = { fg = "NONE", bg = theme.ui.bg_p2 },
+--       PmenuSbar = { bg = theme.ui.bg_m1 },
+--       PmenuThumb = { bg = theme.ui.bg_p2 },
+--       TelescopeTitle = { fg = theme.ui.special, bold = true },
+--       TelescopePromptNormal = { bg = theme.ui.bg_p1 },
+--       TelescopePromptBorder = { fg = theme.ui.bg_p1, bg = theme.ui.bg_p1 },
+--       TelescopeResultsNormal = { fg = theme.ui.fg_dim, bg = theme.ui.bg_m1 },
+--       TelescopeResultsBorder = { fg = theme.ui.bg_m1, bg = theme.ui.bg_m1 },
+--       TelescopePreviewNormal = { bg = theme.ui.bg_dim },
+--       TelescopePreviewBorder = { bg = theme.ui.bg_dim, fg = theme.ui.bg_dim },
+--     }
+--   end,
+-- })
+vim.cmd("colorscheme bamboo")
 -- }}}
 -- LSP Signs  {{{
 local signs = { Error = "✘ ", Warn = "⚠️ ", Hint = " ", Info = " " }
