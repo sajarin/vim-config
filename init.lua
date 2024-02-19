@@ -524,6 +524,7 @@ require('nvim-treesitter.configs').setup {
     },
   },
 }
+require 'nvim-treesitter.install'.compilers = { 'zig', 'clang' }
 --}}}
 -- Harpoon  {{{
 require('harpoon').setup()
@@ -602,8 +603,8 @@ require("obsidian").setup({
   -- WARN: Change this to your own vault location!
   workspaces = {
     {
-      name = "Mind Bank",
-      path = "~/iCloudDrive/Mind Bank/"
+      name = "Obsidian Vault",
+      path = "C:\\Users\\Sajarin\\iCloudDrive\\Obsidian"
     },
   },
 })
