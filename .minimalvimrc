@@ -1,0 +1,172 @@
+" ===================================================================
+" Author:        Shaedil D.
+" Maintainer:    Shaedil D.
+" Website Link:  https://github.com/Shaedil/vim-config
+" Description:   Minimal (No Plugins) vimrc used for TUI and GUI Vim
+" Last Modified: 3/26/21
+" ===================================================================
+"{{{ Tabs, foldmethods, syntax
+filetype plugin on
+syntax on
+set nocompatible
+set encoding=utf8
+set splitbelow
+set splitright
+set tags=tags
+set cursorline
+set synmaxcol=0
+" numberline
+set nonumber
+set relativenumber
+set pastetoggle=<F2>
+" for temporary mouse support
+set mouse=a
+" correct MacOS backspace key
+set backspace=indent,eol,start
+" indentation
+set tabstop=4
+set shiftwidth=4
+set expandtab
+set softtabstop=0
+set autoindent
+" file search
+set hlsearch
+set incsearch
+" folding
+set foldmethod=marker
+set foldnestmax=10
+set foldenable
+set foldlevelstart=0
+" autocompletion
+set path=.,**
+set wildmenu
+set omnifunc=syntaxcomplete#Complete
+set completeopt+=preview
+set wildmode=longest:full
+set wildcharm=<C-b>
+set wildignore=*.swip,*.bak
+set wildignore+=*.pyc,*.class,*.sln,*.Master,*.csproj,*.csproj.user
+set wildignore+=*.cache,*.dll,*.pdb,*.min.*
+set wildignore+=*/.git/**/*,*/.hg/**/*,*/.svn/**/*
+set wildignore+=tags
+set wildignore+=*.tar.*
+inoremap <expr> <CR> pumvisible() ? "\<C-y>" : "\<C-g>u\<CR>"
+inoremap <expr> <C-n> pumvisible() ? '<C-n>' :
+  \ '<C-n><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+inoremap <expr> <M-,> pumvisible() ? '<C-n>' :
+  \ '<C-x><C-o><C-n><C-p><C-r>=pumvisible() ? "\<lt>Down>" : ""<CR>'
+nmap <F12> :w <CR>
+"}}}
+"{{{ Custom Functions, Commands, and AutoCommands
+command! BufOnly silent! execute "%bd|e#|bd#"
+"{{{ ToggleCursors - Useful for when you forget where your cursor is
+nnoremap <F3> :call ToggleCursors()<CR>
+fun! ToggleCursors()
+    if &cursorline && &cursorcolumn
+        set nocursorcolumn nocursorline
+    else
+        set cursorcolumn cursorline
+    endif
+endfun
+"}}}
+"{{{ Vullscreen - Removes annoying action menu at top (GUI Vim only)
+nnoremap <F11> :call VullScreen()<cr>
+fun! VullScreen()
+    if &go=~#'m'
+        set go-=mTrRlL
+    else
+        set go+=mTrRlL
+    endif
+endfun "}}}
+"{{{ Viewing Images
+" autocmd BufEnter *.png,*.jpg,*gif echohl WarningMsg | echo "Press Q to Quit the window" | exec "!feh ".expand("%") | :bw
+autocmd BufEnter *.png,*.jpg,*gif exec "!xdg-open ".expand("%") | :bw
+"}}}
+"}}}
+"{{{ Graphical Config
+"{{{ Font + Colorscheme
+set guifont=DroidSansMono_NF:h10:cANSI:qDRAFT
+colorscheme torte
+"}}}
+"{{{ Statusline
+" Sets statusline visible at all times:
+" 0=never 1=sometimes(default) 2=always
+" :h mode() to see all modes
+function! ReadOnly()
+  if &readonly || !&modifiable
+    return '[RO]'
+  else
+    return ''
+endfunction
+function! GitBranch()
+    return system("git rev-parse --abbrev-ref HEAD 2>/dev/null | tr -d '\n'")
+endfunction
+function! StatuslineGit()
+  let l:branchname = GitBranch()
+  return strlen(l:branchname) > 0?'  '.l:branchname.' ':''
+endfunction
+set laststatus=2
+set statusline=
+set statusline+=%{StatuslineGit()}
+set statusline+=%8*\ [%n]                                " buffernr
+set statusline+=%8*\ %<%f\ %{ReadOnly()}\ %m\ %w\        " File+path
+set statusline+=%#warningmsg#
+set statusline+=%*
+set statusline+=%9*\ %=                                  " Space
+set statusline+=%8*\ %y\                                 " FileType
+set statusline+=%7*\ %{(&fenc!=''?&fenc:&enc)}\[%{&ff}]\
+" Encoding & Fileformat
+set statusline+=%0*\ %3p%%\ \ %l:\ %3c\                 " Rownumber/total (%)
+hi statuslinenc ctermfg=8 ctermbg=7
+hi TabLine      ctermfg=7 ctermbg=8
+hi TabLineFill  ctermfg=0 ctermbg=7
+hi TabLineSel   ctermfg=8 ctermbg=7
+hi User1 ctermfg=007
+hi User2 ctermfg=007
+hi User3 ctermfg=007
+hi User4 ctermfg=007
+hi User5 ctermfg=007 ctermbg=007
+hi User6 ctermfg=007
+hi User7 ctermfg=027 | " controls unicode color
+hi User8 ctermfg=007 | " controls filename color
+hi User9 ctermfg=007
+"}}}
+"}}}
+"{{{ Keybindings
+"{{{ Save file
+nmap <F12> :w <CR>
+"}}}
+"{{{ Abbreviations
+ca vsf vert sf
+ca W w
+ca Cd cd
+ca Wq wq
+"}}}
+"{{{ Navigating split windows
+noremap <C-J> <C-W><C-J>
+noremap <C-K> <C-W><C-K>
+noremap <C-L> <C-W><C-L>
+noremap <C-H> <C-W><C-H>
+"}}}
+"{{{ Adjusting split windows
+noremap <C-up> <C-w>+
+noremap <C-down> <C-w>-
+noremap <leader>] <C-w>>
+noremap <leader>[ <C-w><
+"}}}
+"{{{ Navigating Tabs
+" NOTE: gt is default
+nnoremap gt :tabnext<CR>
+nnoremap th :tabprev<CR>
+nnoremap tn :tabnew<CR>
+nnoremap tc :tabclose<CR>
+"}}}
+"{{{ Buffer Jumping
+nnoremap gb :ls<Cr>:b<Space>
+"}}}
+"{{{ Replace all is aliased to S
+nnoremap S :%s//g<Left><Left>
+"}}}
+"{{{ Set Spell Options
+nnoremap <F4> :setlocal spell! spelllang=en_us<cr>
+"}}}
